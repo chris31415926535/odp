@@ -65,21 +65,21 @@ text_box_list <- function(
     draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") {
   frame <- draw_frame_list(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
 
-  textbox <- text_box_list2(text)
+  textbox <- text_box_list2(text, draw_text_style_name = draw_text_style_name)
 
   frame$children <- append(frame$children, list(textbox))
   frame
 }
 
 # function that just creates the  text box, but the main funciton also wraps it in a draw:frame
-text_box_list2 <- function(text) {
+text_box_list2 <- function(text, draw_text_style_name) {
   list(
     type = "draw:text-box",
     attributes = c(),
     children = list(
       list(
         type = "text:p",
-        attributes = c(),
+        attributes = c(`text:style-name` = draw_text_style_name),
         children = list(text)
       )
     )
@@ -265,3 +265,54 @@ save_pres <- function(doc, filename) {
   file.copy(from = from_path, to = to_path, overwrite = TRUE)
   setwd(old_wd)
 }
+
+
+
+# styles must be list of list style items
+write_styles <- function(doc, styles) {
+  automatic_styles <- xml2::xml_child(doc, "office:automatic-styles")
+  purrr::walk(
+    styles,
+    \(style) xml2::xml_add_child(automatic_styles, list_item_to_xml(style))
+  )
+  doc
+} # end function write_styles
+
+# slides must be list of list slide items
+write_slides <- function(doc, slides) {
+  pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
+
+  purrr::walk(
+    slides,
+    \(slide) xml2::xml_add_child(pres_node, list_item_to_xml(slide))
+  )
+
+  doc
+} # end function write_slides
+
+
+
+
+new_paragraph_style_list <- function(name, font_weight = c("regular", "bold"), color = "#000000", opacity = "100%") {
+  font_weight <- match.arg(font_weight, font_weight)
+
+  style_list <- list(
+    `type` = "style:style",
+    `attributes` = c(
+      `style:name` = name,
+      `style:family` = "paragraph"
+    ),
+    children = list(
+      list(
+        `type` = "style:text-properties",
+        `attributes` = c(
+          `fo:font-weight` = font_weight,
+          `fo:color` = color,
+          `lotext:opacity` = opacity
+        )
+      )
+    )
+  )
+
+  style_list
+} # end function new_paragraph_style_list

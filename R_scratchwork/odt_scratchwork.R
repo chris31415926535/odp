@@ -63,6 +63,7 @@ devtools::load_all()
 
 
 doc <- new_pres()
+
 pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
 
 # create list
@@ -198,3 +199,33 @@ save_pres(doc, filename)
 # <office:body><office:presentation>%s</office:presentation></office:body>
 # </document-content>
 # '
+
+
+
+## PARAGRAPH STYLES WORKING!!!!!!
+
+devtools::load_all()
+doc <- new_pres()
+
+chris_style <- new_paragraph_style_list(name = "chris", color = "#FF00FF")
+styles <- list(chris_style)
+
+# create slide
+page1 <- page_list()
+
+# test creating a text box
+text_box_1 <- text_box_list(text = "happy chris", width = "10cm", height = "2cm", x = "1cm", y = "5cm", draw_text_style_name = "chris")
+page1$children <- append(page1$children, list(text_box_1))
+
+text_box_1 <- text_box_list(text = "happy generic", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
+page1$children <- append(page1$children, list(text_box_1))
+
+
+slides <- list(page1)
+
+filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")
+
+doc |>
+  write_styles(styles) |>
+  write_slides(slides) |>
+  save_pres(filename)
