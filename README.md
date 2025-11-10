@@ -16,17 +16,53 @@ At present this project is **not** intended to implement the full Open Document 
 
 The R package [_officer_](https://ardata-fr.github.io/officeverse/index.html) is very nice but only works with Microsoft Powerpoint .pptx files. _officer_ is not able to work with .pptx files saved by LibreOffice, and LibreOffice is also seemingly not able to properly edit and add placeholders to .pptx master slides.
 
+## Design Principles
+
+_This package is in its very early stages and all of this may change._
+
+I want this package to be simple to use and easy to reason about. This is harder than it seems, because an .odt file is surprisingly complex: it is actually a zip file containing a number of .xml files and other things. And .xml files are particularly awful to work with in R, because they are loaded as a complex extremely un-R-like data structure with lots of modify-in-place side effects and pointers. They are difficult to reason about.
+
+So in _odt_ we take a different tack. We define our presentation primarily using in-memory R objects (lists, but they should eventually be typed classes), and then only convert them to XML after we are done defining them.
+
+At present, however, _odt_ also uses some side-effects. When a new deck is initialized, a temporary folder is created and a blank presentation (from LibreOffice) is unzipped to provide an empty scaffold. This is mostly unused, except that any images added to the presentation are copied into the "Pictures" folder within this template. Then, when the user is ready to save their presentation, they write styles, fonts, and slides to disk and save a local copy of the presentation by compressing the temporary folder.
+
+This has a few implications:
+
+- Only one deck can be loaded per R session. If you try to start another deck, it will mess with/erase the old one.
+
+The process is intended to be:
+
+- Initialize a new deck that returns an R object and creates a working temporary folder;
+- Define any styles (think of this like setting your CSS);
+- Define any fonts;
+- Create a set of slides;
+- Write styles, fonts, and slides to disk in the temporary folder;
+- Create an odt file by compressing the temporary folder.
+
+## Known issues
+
+- Adding images will create a "broken" file that LibreOffice can fix. I believe this is because I'm not updating manifest.xml
+
+## TODO
+
+- Alt text for images
+- 'Decorative' tag for images?
+- Shapes
+- Links
+- manifest.xml
+- Refactor in a clever way to do all image copying at write time, so we don't actually need the temp folder the whole time?
+
 ## Installation
 
 You can install the development version of odp like so:
 
 ```r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("chris31415926535/odp")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to create a simple presentation:
 
 ```r
 library(odp)
