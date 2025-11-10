@@ -67,7 +67,7 @@ doc <- new_pres()
 pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
 
 # create list
-page1 <- page_list()
+page1 <- slide_list()
 
 # test creating a text box
 text_box_1 <- text_box_list(text = "happy", width = "10cm", height = "2cm", x = "1cm", y = "5cm")
@@ -102,7 +102,7 @@ for (i in 1:20) {
 
 # make simple page 2
 
-page2 <- page_list(name = "slide the second")
+page2 <- slide_list(name = "slide the second")
 text_box_2 <- text_box_list(text = "happy page 2!!!", width = "10cm", height = "2cm", x = "1cm", y = "5cm")
 page2$children <- append(page2$children, list(text_box_2))
 
@@ -144,7 +144,7 @@ for (i in file_ids) {
   file <- files[[i]]
   file_path <- file_paths[[i]]
 
-  page <- page_list(name = file)
+  page <- slide_list(name = file)
 
   tb <- text_box_list(text = file, width = "28cm", height = "1.5cm", x = "0cm", y = "0cm")
 
@@ -207,25 +207,39 @@ save_pres(doc, filename)
 devtools::load_all()
 doc <- new_pres()
 
-chris_style <- new_paragraph_style_list(name = "chris", color = "#FF00FF")
+fonts <- list(new_font_list(name = "FreeSerif"))
+
+chris_style <- new_paragraph_style_list(
+  name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif"
+)
 styles <- list(chris_style)
 
 # create slide
-page1 <- page_list()
+slide1 <- slide_list(name = "SLIDE TITLE FOR ACCESSIBILITY")
 
 # test creating a text box
-text_box_1 <- text_box_list(text = "happy chris", width = "10cm", height = "2cm", x = "1cm", y = "5cm", draw_text_style_name = "chris")
-page1$children <- append(page1$children, list(text_box_1))
+text_box_1 <- text_box_list(
+  text = "happy chris", width = "10cm",
+  height = "2cm", x = "1cm", y = "5cm",
+  draw_text_style_name = "chris"
+)
 
-text_box_1 <- text_box_list(text = "happy generic", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
-page1$children <- append(page1$children, list(text_box_1))
+text_box_2 <- text_box_list(text = "happy generic", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
+
+slide1 <- slide1 |>
+  add_to_slide(text_box_1) |>
+  add_to_slide(text_box_2)
+
+# page1$children <- append(page1$children, list(text_box_1))
+# page1$children <- append(page1$children, list(text_box_1))
 
 
-slides <- list(page1)
+slides <- list(slide1, slide1, slide1)
 
 filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")
 
 doc |>
+  write_fonts(fonts) |>
   write_styles(styles) |>
   write_slides(slides) |>
   save_pres(filename)

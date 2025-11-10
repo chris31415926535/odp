@@ -88,7 +88,7 @@ text_box_list2 <- function(text, draw_text_style_name) {
 
 
 
-page_list <- function(name = "slide") {
+slide_list <- function(name = "slide") {
   list(
     type = "draw:page",
     attributes = c(`draw:name` = name),
@@ -290,10 +290,27 @@ write_slides <- function(doc, slides) {
   doc
 } # end function write_slides
 
+# fonts must be list of list fonts items
+write_fonts <- function(doc, fonts) {
+  fonts_node <- xml2::xml_child(doc, "office:font-face-decls")
+
+  purrr::walk(
+    fonts,
+    \(font) xml2::xml_add_child(fonts_node, list_item_to_xml(font))
+  )
+
+  doc
+} # end function write_slides
 
 
 
-new_paragraph_style_list <- function(name, font_weight = c("regular", "bold"), color = "#000000", opacity = "100%") {
+
+new_paragraph_style_list <- function(
+    name,
+    font_weight = c("regular", "bold"),
+    color = "#000000",
+    opacity = "100%",
+    font_name = "Liberation Sans") {
   font_weight <- match.arg(font_weight, font_weight)
 
   style_list <- list(
@@ -308,7 +325,8 @@ new_paragraph_style_list <- function(name, font_weight = c("regular", "bold"), c
         `attributes` = c(
           `fo:font-weight` = font_weight,
           `fo:color` = color,
-          `lotext:opacity` = opacity
+          `lotext:opacity` = opacity,
+          `style:font-name` = font_name
         )
       )
     )
@@ -316,3 +334,28 @@ new_paragraph_style_list <- function(name, font_weight = c("regular", "bold"), c
 
   style_list
 } # end function new_paragraph_style_list
+
+# <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/>
+new_font_list <- function(
+    name,
+    font_family_generic = "system",
+    font_pitch = "variable") {
+  list(
+    `type` = "style:font-face",
+    attributes = c(
+      `style:name` = name,
+      `svg:font-family` = name,
+      `style:font-family-generic` = font_family_generic,
+      `style:font-pitch` = font_pitch
+    )
+  )
+}
+
+
+
+# slide and item must both be list items
+add_to_slide <- function(slide, item) {
+  slide$children <- append(slide$children, list(item))
+
+  slide
+}
