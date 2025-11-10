@@ -78,7 +78,7 @@ fonts <- list(new_font_list(name = "FreeSerif"))
 
 # define a new style, and name it "chris"
 chris_style <- new_paragraph_style_list(
-  name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif"
+  name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif", text_align="end"
 )
 
 # our set of custom styles needs to live in a list
@@ -89,21 +89,35 @@ slide1 <- slide_list(name = "SLIDE TITLE FOR ACCESSIBILITY")
 
 # create two text boxes, one styled and the other generic
 text_box_1 <- text_box_list(
-  text = "happy chris", width = "10cm",
+  text = "Lovely formatted text!", width = "10cm",
   height = "2cm", x = "1cm", y = "5cm",
   draw_text_style_name = "chris"
 )
 
-text_box_2 <- text_box_list(text = "happy generic", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
+text_box_2 <- text_box_list(text = "Generic uninteresting text.", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
 
 # add the two text boxes to our slide
 slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
   add_to_slide(text_box_2)
 
+# Create a joke slide with text in a sine wave pattern
+slide_sin <- slide_list("Sine wave") |>
+  add_to_slide(text_box_list(text = "A spoooooky sine wave!", height = "1cm", width = "10cm", x = "1cm", y = "1cm"))
+
+for (x in seq(from = 1, to = 27, by = 0.5)) {
+  text_box <- text_box_list(
+    text = "O",
+    width = "1cm", height = "1cm",
+    x = paste0(x, "cm"),
+    y = paste0(10 + 5 * sin(x / 5), "cm")
+  )
+  slide_sin <- add_to_slide(slide_sin, text_box)
+}
+
+
 # our final set of slides must be a list.
-# Here we'll repeat slide 1 three times.
-slides <- list(slide1, slide1, slide1)
+slides <- list(slide1, slide_sin)
 
 # set up a timestamped filename
 filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")

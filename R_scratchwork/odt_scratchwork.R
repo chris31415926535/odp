@@ -209,10 +209,14 @@ doc <- new_pres()
 
 fonts <- list(new_font_list(name = "FreeSerif"))
 
-chris_style <- new_paragraph_style_list(
-  name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif"
+style_chris <- new_paragraph_style_list(
+  name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif", text_align = "end",
 )
-styles <- list(chris_style)
+style_center <- new_paragraph_style_list(
+  name = "style_center", text_align = "center"
+)
+
+styles <- list(style_chris, style_center)
 
 # create slide
 slide1 <- slide_list(name = "SLIDE TITLE FOR ACCESSIBILITY")
@@ -224,17 +228,29 @@ text_box_1 <- text_box_list(
   draw_text_style_name = "chris"
 )
 
-text_box_2 <- text_box_list(text = "happy generic", width = "10cm", height = "3cm", x = "1cm", y = "8cm")
+text_box_2 <- text_box_list(
+  text = "happy center", width = "10cm", height = "3cm", x = "1cm", y = "8cm", draw_text_style_name = "style_center"
+)
 
 slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
   add_to_slide(text_box_2)
 
-# page1$children <- append(page1$children, list(text_box_1))
-# page1$children <- append(page1$children, list(text_box_1))
+# Add a joke slide
+slide_sin <- slide_list("Sine wave") |>
+  add_to_slide(text_box_list(text = "A spoooooky sine wave!", height = "1cm", width = "10cm", x = "1cm", y = "1cm"))
 
+for (x in seq(from = 1, to = 27, by = 0.5)) {
+  text_box <- text_box_list(
+    text = "O",
+    width = "1cm", height = "1cm",
+    x = paste0(x, "cm"),
+    y = paste0(10 + 5 * sin(x / 5), "cm")
+  )
+  slide_sin <- add_to_slide(slide_sin, text_box)
+}
 
-slides <- list(slide1, slide1, slide1)
+slides <- list(slide1, slide_sin)
 
 filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")
 
@@ -243,3 +259,8 @@ doc |>
   write_styles(styles) |>
   write_slides(slides) |>
   save_pres(filename)
+
+
+# <loext:graphic-properties draw:fill="none" draw:fill-color="#ffffff"/>
+# <style:paragraph-properties fo:text-align="end"/>
+# </style:style>

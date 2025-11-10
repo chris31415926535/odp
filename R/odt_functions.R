@@ -309,9 +309,11 @@ new_paragraph_style_list <- function(
     name,
     font_weight = c("regular", "bold"),
     color = "#000000",
+    text_align = c("start", "center", "end"),
     opacity = "100%",
     font_name = "Liberation Sans") {
   font_weight <- match.arg(font_weight, font_weight)
+  text_align <- match.arg(text_align, text_align)
 
   style_list <- list(
     `type` = "style:style",
@@ -327,6 +329,12 @@ new_paragraph_style_list <- function(
           `fo:color` = color,
           `lotext:opacity` = opacity,
           `style:font-name` = font_name
+        )
+      ),
+      list(
+        `type` = "style:paragraph-properties",
+        `attributes` = c(
+          `fo:text-align` = text_align
         )
       )
     )
