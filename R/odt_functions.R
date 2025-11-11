@@ -2,9 +2,19 @@
 # <draw:frame draw:style-name="gr2" draw:text-style-name="P4"
 # draw:layer="layout" svg:width="12cm" svg:height="2cm" svg:x="7cm" svg:y="8cm">
 
+#' Create a `draw:frame` list object.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 draw_frame_list <- function(
-    width, height, x, y, draw_layer = "layout",
-    draw_style_name = "gr1", draw_text_style_name = "P1") {
+    width, height, x, y,
+    draw_layer = "layout",
+    draw_style_name = "gr1",
+    draw_text_style_name = "P1") {
   list(
     type = "draw:frame",
     attributes = c(
@@ -20,46 +30,15 @@ draw_frame_list <- function(
   )
 }
 
-# test: create and return a text-box node
-# don't think this is used
-text_box_xml <- function(text = "") {
-  node_text <- sprintf("<draw:text-box><text:p>%s</text:p></draw:text-box>", text)
-  xml2::read_xml(node_text)
-}
 
-
-# nolint start
-
-# draw_frame_xml <- function(
-#     width, height, x, y,
-#     draw_style_name = "gr1", draw_text_style_name = "P1", draw_layer = "layout") {
-
-#   frame_list <- draw_frame_list(draw_style_name, draw_text_style_name, width, height, x, y, draw_layer)
-
-
-#   node_text <- sprintf("<%s />", frame$type)
-
-#   test <- xml2::read_xml(node_text)
-#   test |>
-#     xml2::xml_set_attrs(value = frame$attributes)
-# }
-
-
-# node_text <- sprintf("<%s />", frame$type)
-
-# test <- xml2::read_xml(node_text)
-# test |>
-# xml2::xml_set_attrs(value = frame$attributes)
-
-# text1 <- text_box("Here is some TEXT!")
-
-# test |>
-# xml2::xml_add_child(text1)
-
-# width <- "10cm" ; height <- "2cm"; x <- "6.5cm"; y <- "2.22cm"
-# nolint end
-
-# create a textbox list including its wrapping draw_frame
+#' Create a textbox list including its wrapping draw_frame
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 text_box_list <- function(
     text, width, height, x, y,
     draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") {
@@ -71,8 +50,16 @@ text_box_list <- function(
   frame
 }
 
-# function that just creates the  text box, but the main funciton also wraps it in a draw:frame
+#' Function that just creates the  text box, but the main funciton also wraps it in a draw:frame
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 text_box_list2 <- function(text, draw_text_style_name) {
+  # each line is wrapped in its own p for linebreaks
   list(
     type = "draw:text-box",
     attributes = c(),
@@ -82,8 +69,27 @@ text_box_list2 <- function(text, draw_text_style_name) {
   )
 }
 
-# create a text:p item in list format
+#' Create a text:p item in list format
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 text_p_list <- function(text, text_style_name) {
+  list(
+    type = "text:p",
+    attributes = c(`text:style-name` = text_style_name),
+    children = list(text)
+  )
+  # text |>
+  #   maybe_split_text_lines() |>
+  #   purrr::map(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
+}
+
+# internal function
+do_text_p_list <- function(text, text_style_name) {
   list(
     type = "text:p",
     attributes = c(`text:style-name` = text_style_name),
@@ -91,7 +97,24 @@ text_p_list <- function(text, text_style_name) {
   )
 }
 
+# if text is a string, split it at any linebreaks
+maybe_split_text_lines <- function(text) {
+  if (is.character(text)) {
+    text |>
+      stringr::str_split("\n", simplify = TRUE)
+  } else {
+    text
+  }
+} # end function maybe_split_text_lines
 
+#' Create a slide item in list format
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 slide_list <- function(name = "slide") {
   list(
     type = "draw:page",
@@ -100,28 +123,14 @@ slide_list <- function(name = "slide") {
   )
 }
 
-# nolint start
-# add_text_box <- function(text, width, height, x, y) {
-#   frame <- draw_frame(width = "10cm", height = "2cm", x = "1cm", y = "10cm")
-# }
-# item <- draw_frame_list(width = "10cm", height = "2cm", x = "1cm", y = "5cm")
-# nolint end
-
-
-
-
-
-### ADD A PICTURE
-# nolint start
-# <draw:frame draw:style-name="gr1" draw:text-style-name="P1" draw:layer="layout" svg:width="11.275cm" svg:height="8.456cm" svg:x="7cm" svg:y="3.044cm">
-# <draw:image xlink:href="Pictures/1000261200004F6000003B88DEC6CDB0.svg" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" draw:mime-type="image/svg+xml">
-# <text:p/>
-# </draw:image>
-# <draw:image xlink:href="Pictures/1000000100000300000002409D1A56DD.png" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" draw:mime-type="image/png"/>
-# </draw:frame>
-# width <- "10cm" ; height <- "2cm"; x <- "6.5cm"; y <- "2.22cm"
-# img_filepath <- "~/datascience/R/ewhs2024/analyses/10.demographic_analyses/output/fig/svg/burnout_exhaustion_fct_hilo-demo_ee_black-1-overall-2025-10-30.svg"
-# nolint end
+#' Create an image item in list format
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer = "layout", draw_style_name = "gr2", draw_text_style_name = "P1") { # nolint
 
   #  img path local to presentation folder
@@ -174,7 +183,14 @@ image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer =
 
 ### COVERT LIST TO XML
 
-# recursive funciton to parse list into xml???
+#' Recursive funciton to parse list into xml???
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 list_item_to_xml <- function(item) {
   node <- xml2::read_xml(sprintf("<%s />", item$type)) |>
     suppressWarnings()
@@ -236,7 +252,15 @@ empty_xml_text <- '<office:document-content xmlns:anim="urn:oasis:names:tc:opend
 # nolint end
 
 
-# Create a new presentation. This returns an XML object and also has side effects on disk.
+#' Create a new presentation. This returns an XML object and also has side effects on disk.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
+
 new_pres <- function() {
   Sys.setenv("temp_dir" = sprintf("%s/pres", tempdir()))
   unlink(x = Sys.getenv("temp_dir"), recursive = TRUE, force = TRUE) |> suppressWarnings()
@@ -255,7 +279,14 @@ new_pres <- function() {
 }
 
 
-# Save presentation as compressed ODP file in the current working directory and return the input document.
+#' Save presentation as compressed ODP file in the current working directory and return the input document.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 save_pres <- function(doc, filename) {
   # Save the context.xml file to disk
   content_xml_filename <- paste0(Sys.getenv("temp_dir"), "/content.xml")
@@ -276,7 +307,15 @@ save_pres <- function(doc, filename) {
 
 
 
-# styles must be list of list style items
+
+#' Write styles in deck object. Styles must be list of list style items
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 write_styles <- function(doc, styles) {
   automatic_styles <- xml2::xml_child(doc, "office:automatic-styles")
   purrr::walk(
@@ -286,7 +325,14 @@ write_styles <- function(doc, styles) {
   doc
 } # end function write_styles
 
-# slides must be list of list slide items
+#' Write slides in deck object. Slides must be list of list style items
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 write_slides <- function(doc, slides) {
   pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
 
@@ -298,7 +344,15 @@ write_slides <- function(doc, slides) {
   doc
 } # end function write_slides
 
-# fonts must be list of list fonts items
+
+#' Write fonts in deck object. Fonts must be list of list font items
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 write_fonts <- function(doc, fonts) {
   fonts_node <- xml2::xml_child(doc, "office:font-face-decls")
 
@@ -312,7 +366,14 @@ write_fonts <- function(doc, fonts) {
 
 
 
-
+#' Create new paragraph style.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 new_paragraph_style_list <- function(
     name,
     font_weight = c("regular", "bold"),
@@ -354,6 +415,14 @@ new_paragraph_style_list <- function(
 } # end function new_paragraph_style_list
 
 # <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/> # nolint
+#' Define new font for use in the deck.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 new_font_list <- function(
     name,
     font_family_generic = "system",
@@ -371,23 +440,30 @@ new_font_list <- function(
 
 
 
-# slide and item must both be list items
+#
+#' Add item to slide.  slide and item must both be list items
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 add_to_slide <- function(slide, item) {
   slide$children <- append(slide$children, list(item))
 
   slide
 }
 
-# nolint start
-# <draw:custom-shape draw:style-name="gr2" draw:text-style-name="P1" draw:layer="layout"
-# svg:width="8.5cm" svg:height="5.5cm" svg:x="19.5cm" svg:y="8cm">
-# <text:p text:style-name="P1">
-# Circle</text:p>
-# <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
-# draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163"
-# draw:text-areas="3163 3163 18437 18437" draw:type="ellipse" draw:enhanced-path="U 10800 10800 10800 10800 0 360 Z N"/>
-# </draw:custom-shape>
-# nolint end
+
+#' Create new custom shape.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 new_custom_shape_list <- function(
     type = c("rectangle", "ellipse"),
     width,
@@ -417,6 +493,13 @@ new_custom_shape_list <- function(
   )
 }
 
+#' Create enhanced geometry item. Not used by user
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
 draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
   # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
   # draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163" #nolint
@@ -456,6 +539,15 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
 #  fo:min-height="4.25cm" fo:min-width="4cm" loext:decorative="false"/>
 # <style:paragraph-properties style:writing-mode="lr-tb"/>
 # </style:style>
+
+#' Define a new graphics style.
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 new_graphic_style_list <- function(
     name,
     stroke_color = "#000000",
@@ -493,7 +585,14 @@ new_graphic_style_list <- function(
 } # end function new_graphic_style_list()
 
 
-# a field that will display the current page number. goes inside a text box
+#' A field that will display the current page number. goes inside a text box
+#'
+#' Description of what the function does.
+#' how duplication is measured.
+#'
+#' @param type description
+#' @returns Description of what the function returns.
+#' @export
 field_page_num_list <- function() {
   list(
     `type` = "text:page-number",
