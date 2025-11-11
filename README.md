@@ -45,11 +45,13 @@ The process is intended to be:
 
 ## TODO
 
-- Alt text for images
+- ~~Alt text for images~~
 - 'Decorative' tag for images?
-- -Shapes-
+- ~~Basic Shapes~~
+- ~~Page numbers~~
+- ~~Basic text and shape styling~~
 - Links
-- manifest.xml
+- Fix manifest.xml for images
 - Refactor in a clever way to do all image copying at write time, so we don't actually need the temp folder the whole time?
 
 ## Installation

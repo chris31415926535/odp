@@ -316,6 +316,7 @@ write_fonts <- function(doc, fonts) {
 new_paragraph_style_list <- function(
     name,
     font_weight = c("regular", "bold"),
+    font_size = "12pt",
     color = "#000000",
     text_align = c("start", "center", "end"),
     opacity = "100%",
@@ -334,6 +335,7 @@ new_paragraph_style_list <- function(
         `type` = "style:text-properties",
         `attributes` = c(
           `fo:font-weight` = font_weight,
+          `fo:font-size` = font_size,
           `fo:color` = color,
           `loext:opacity` = opacity,
           `style:font-name` = font_name
@@ -489,3 +491,12 @@ new_graphic_style_list <- function(
 
   style_list
 } # end function new_graphic_style_list()
+
+
+# a field that will display the current page number. goes inside a text box
+field_page_num_list <- function() {
+  list(
+    `type` = "text:page-number",
+    children = c("&lt;number&gt;")
+  )
+} # end function field_page_num_list()
