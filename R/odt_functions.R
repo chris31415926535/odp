@@ -77,15 +77,19 @@ text_box_list2 <- function(text, draw_text_style_name) {
     type = "draw:text-box",
     attributes = c(),
     children = list(
-      list(
-        type = "text:p",
-        attributes = c(`text:style-name` = draw_text_style_name),
-        children = list(text)
-      )
+      text_p_list(text, draw_text_style_name)
     )
   )
 }
 
+# create a text:p item in list format
+text_p_list <- function(text, text_style_name) {
+  list(
+    type = "text:p",
+    attributes = c(`text:style-name` = text_style_name),
+    children = list(text)
+  )
+}
 
 
 slide_list <- function(name = "slide") {
@@ -231,40 +235,44 @@ empty_xml_text <- '<office:document-content xmlns:anim="urn:oasis:names:tc:opend
 '
 # nolint end
 
+
+# Create a new presentation. This returns an XML object and also has side effects on disk.
 new_pres <- function() {
   Sys.setenv("temp_dir" = sprintf("%s/pres", tempdir()))
-  file.remove(path = Sys.getenv("temp_dir"), recursive = TRUE) |> suppressWarnings()
+  unlink(x = Sys.getenv("temp_dir"), recursive = TRUE, force = TRUE) |> suppressWarnings()
   dir.create(Sys.getenv("temp_dir"), showWarnings = FALSE)
   file.copy(
     from = paste0(system.file("extdata", package = "odp"), "/empty_presentation.odp"),
     to = Sys.getenv("temp_dir"),
     overwrite = TRUE
   )
-  old_wd <- getwd()
-  setwd(Sys.getenv("temp_dir"))
-  system("unzip -o empty_presentation.odp", ignore.stdout = TRUE)
-  setwd(old_wd)
+
+  unzip_command <- sprintf("cd %s; unzip -o empty_presentation.odp", Sys.getenv("temp_dir"))
+  system(unzip_command, ignore.stdout = TRUE)
+  file.remove(paste0(Sys.getenv("temp_dir"), "/empty_presentation.odp"))
 
   xml2::read_xml(empty_xml_text)
 }
 
 
-# save, copy to working folder
-# uses global temp_dir
-# should we use getenv / setenv?
+# Save presentation as compressed ODP file in the current working directory and return the input document.
 save_pres <- function(doc, filename) {
-  old_wd <- getwd()
-  setwd(Sys.getenv("temp_dir"))
-
+  # Save the context.xml file to disk
   content_xml_filename <- paste0(Sys.getenv("temp_dir"), "/content.xml")
   xml2::write_xml(x = doc, file = content_xml_filename)
-  zip_cmd <- "zip -r output.odp * -x *.odt -x *.odp"
+
+  # compress it
+  zip_cmd <- sprintf("cd %s; zip -r output.odp * -x *.odt -x *.odp", Sys.getenv("temp_dir"))
   system(zip_cmd, ignore.stdout = TRUE)
+
+  # copy to current working folder
   from_path <- paste0(Sys.getenv("temp_dir"), "/output.odp")
-  to_path <- paste0(old_wd, "/", filename)
+  to_path <- paste0(getwd(), "/", filename)
   file.copy(from = from_path, to = to_path, overwrite = TRUE)
-  setwd(old_wd)
-}
+
+  # return input invisibly in case there's more piping to do
+  invisible(doc)
+} # end funciton save_pres()
 
 
 
@@ -327,7 +335,7 @@ new_paragraph_style_list <- function(
         `attributes` = c(
           `fo:font-weight` = font_weight,
           `fo:color` = color,
-          `lotext:opacity` = opacity,
+          `loext:opacity` = opacity,
           `style:font-name` = font_name
         )
       ),
@@ -343,7 +351,7 @@ new_paragraph_style_list <- function(
   style_list
 } # end function new_paragraph_style_list
 
-# <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/>
+# <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/> # nolint
 new_font_list <- function(
     name,
     font_family_generic = "system",
@@ -367,3 +375,117 @@ add_to_slide <- function(slide, item) {
 
   slide
 }
+
+# nolint start
+# <draw:custom-shape draw:style-name="gr2" draw:text-style-name="P1" draw:layer="layout"
+# svg:width="8.5cm" svg:height="5.5cm" svg:x="19.5cm" svg:y="8cm">
+# <text:p text:style-name="P1">
+# Circle</text:p>
+# <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
+# draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163"
+# draw:text-areas="3163 3163 18437 18437" draw:type="ellipse" draw:enhanced-path="U 10800 10800 10800 10800 0 360 Z N"/>
+# </draw:custom-shape>
+# nolint end
+new_custom_shape_list <- function(
+    type = c("rectangle", "ellipse"),
+    width,
+    height,
+    x,
+    y,
+    draw_style_name = "gr1",
+    text_style_name = "P1",
+    text = "") {
+  type <- match.arg(type, type)
+
+  list(
+    `type` = "draw:custom-shape",
+    attributes = c(
+      `draw:style-name` = draw_style_name,
+      # `draw:text-style-name` = text_style_name,
+      `draw:layer` = "layout",
+      `svg:width` = width,
+      `svg:height` = height,
+      `svg:x` = x,
+      `svg:y` = y
+    ),
+    children = list(
+      text_p_list(text, text_style_name),
+      draw_enhanced_geometry_list(type)
+    )
+  )
+}
+
+draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
+  # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
+  # draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163" #nolint
+  # draw:text-areas="3163 3163 18437 18437" draw:type="ellipse" draw:enhanced-path="U 10800 10800 10800 10800 0 360 Z N"/> #nolint
+  if (type == "ellipse") {
+    list(
+      `type` = "draw:enhanced-geometry",
+      attributes = c(
+        `svg:viewBox` = "0 0 21600 21600",
+        `draw:glue-points` = "10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163",
+        `draw:text-areas` = "3163 3163 18437 18437",
+        `draw:type` = "ellipse",
+        `draw:enhanced-path` = "U 10800 10800 10800 10800 0 360 Z N"
+      ),
+      children = list()
+    )
+  } else if (type == "rectangle") {
+    # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/> # nolint
+    list(
+      `type` = "draw:enhanced-geometry",
+      attributes = c(
+        `svg:viewBox` = "0 0 21600 21600",
+        `draw:type` = "rectangle",
+        `draw:enhanced-path` = "M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"
+      ),
+      children = list()
+    )
+  }
+} # end function draw_enhanced_geometry_list()
+
+
+
+# <style:style style:name="gr1" style:family="graphic" style:parent-style-name="standard">
+# <style:graphic-properties svg:stroke-color="#ff0000" svg:stroke-opacity="100%"
+# draw:fill="solid" draw:fill-color="#2a6099" draw:opacity="100%"
+#  draw:textarea-horizontal-align="justify" draw:textarea-vertical-align="middle" draw:auto-grow-height="false"
+#  fo:min-height="4.25cm" fo:min-width="4cm" loext:decorative="false"/>
+# <style:paragraph-properties style:writing-mode="lr-tb"/>
+# </style:style>
+new_graphic_style_list <- function(
+    name,
+    stroke_color = "#000000",
+    stroke_opacity = "100%",
+    fill_type = c("none", "solid"),
+    fill_color = "#FFFFFF",
+    fill_opacity = "100%",
+    decorative = TRUE) {
+  fill_type <- match.arg(fill_type)
+
+  style_list <- list(
+    `type` = "style:style",
+    `attributes` = c(
+      `style:name` = name,
+      `style:family` = "graphic",
+      `style:parent-style-name` = "standard"
+    ),
+    children = list(
+      list(
+        `type` = "style:graphic-properties",
+        attributes = c(
+          `svg:stroke-color` = stroke_color,
+          `svg:stroke-opacity` = stroke_opacity,
+          `draw:fill` = fill_type,
+          ` draw:fill-color` = fill_color,
+          `draw:opacity` = fill_opacity,
+          `draw:auto-grow-height` = "false",
+          `loext:decorative` = tolower(decorative)
+        )
+      )
+    )
+  )
+
+  style_list
+} # end function new_graphic_style_list()

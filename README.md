@@ -105,16 +105,19 @@ slide1 <- slide1 |>
 slide_sin <- slide_list("Sine wave") |>
   add_to_slide(text_box_list(text = "A spoooooky sine wave!", height = "1cm", width = "10cm", x = "1cm", y = "1cm"))
 
-for (x in seq(from = 1, to = 27, by = 0.5)) {
+sin_letters <- paste0(rep(x = "HAPPY HALLOWE'EN ", times = 10), collapse = "") |>
+  stringr::str_split("") |>
+  unlist()
+
+for (x in seq(from = 1, to = 50, by = 1)) {
   text_box <- text_box_list(
-    text = "O",
+    text = sin_letters[[x]],
     width = "1cm", height = "1cm",
-    x = paste0(x, "cm"),
-    y = paste0(10 + 5 * sin(x / 5), "cm")
+    x = paste0(x / 2, "cm"),
+    y = paste0(10 + 5 * sin(x / 10), "cm")
   )
   slide_sin <- add_to_slide(slide_sin, text_box)
 }
-
 
 # our final set of slides must be a list.
 slides <- list(slide1, slide_sin)

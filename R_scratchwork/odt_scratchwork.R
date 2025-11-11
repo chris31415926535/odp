@@ -62,9 +62,9 @@ devtools::load_all()
 
 
 
-doc <- new_pres()
+deck <- new_pres()
 
-pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
+pres_node <- xml2::xml_find_first(deck, ".//office:presentation")
 
 # create list
 page1 <- slide_list()
@@ -163,7 +163,7 @@ for (i in file_ids) {
 
 list(page, page) |> str()
 
-doc
+deck
 
 # list.files(path = tempdir())
 
@@ -184,7 +184,7 @@ doc
 
 filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")
 
-save_pres(doc, filename)
+save_pres(deck, filename)
 
 
 
@@ -205,61 +205,116 @@ save_pres(doc, filename)
 ## PARAGRAPH STYLES WORKING!!!!!!
 
 devtools::load_all()
-doc <- new_pres()
 
+# Create a new presentation. This has invisible side effects!
+# The function returns an XML object and ALSO
+# initializes a new document in a temporary folder.
+# Note that for now you can only work on one presentation at a time!
+deck <- new_pres()
+
+# Set up an empty list for our slides
+slides <- list()
+
+# Initialize a new font
 fonts <- list(new_font_list(name = "FreeSerif"))
 
-style_chris <- new_paragraph_style_list(
+# Define some styles. Give them memorable names, we will refer back to them.
+# This is kind of like defining CSS classes.
+style_pg_chris <- new_paragraph_style_list(
   name = "chris", color = "#6502ff", font_weight = "bold", font_name = "FreeSerif", text_align = "end",
 )
-style_center <- new_paragraph_style_list(
-  name = "style_center", text_align = "center"
+style_pg_center <- new_paragraph_style_list(
+  name = "style_pg_center", text_align = "center"
 )
 
-styles <- list(style_chris, style_center)
+style_gr_pink <- new_graphic_style_list(
+  name = "style_gr_pink", fill_type = "solid", fill_color = "#FF00FF", decorative = FALSE
+)
 
-# create slide
-slide1 <- slide_list(name = "SLIDE TITLE FOR ACCESSIBILITY")
+style_gr_blue <- new_graphic_style_list(
+  name = "style_gr_blue", fill_type = "solid", fill_color = "#3c26ff", stroke_color = "#ff0000", decorative = FALSE
+)
 
-# test creating a text box
+# Put all of our styles in a list.
+styles <- list(style_pg_chris, style_pg_center, style_gr_pink, style_gr_blue)
+
+# Create our first slide. Give it a catchy title.
+slide1 <- slide_list(name = "A Great Slide (with explicit title for accessibility)")
+
+# Creating a text box and apply some styling.
 text_box_1 <- text_box_list(
-  text = "happy chris", width = "10cm",
+  text = "Hello friends!", width = "10cm",
   height = "2cm", x = "1cm", y = "5cm",
   draw_text_style_name = "chris"
 )
 
+# Another text box, different styling.
 text_box_2 <- text_box_list(
-  text = "happy center", width = "10cm", height = "3cm", x = "1cm", y = "8cm", draw_text_style_name = "style_center"
+  text = "Happy centered text!",
+  width = "10cm", height = "3cm", x = "1cm", y = "8cm",
+  draw_text_style_name = "style_pg_center"
 )
 
+# Create a pink ellipse. Note that it's pink because we're applying a style we
+# defined above.
+pink_ellipse <- new_custom_shape_list(
+  type = "ellipse", width = "5cm", height = "9cm", x = "10cm", y = "3cm",
+  draw_style_name = "style_gr_pink", text = "ELLIPSE!!!"
+)
+
+# Create a blue rectangle.
+blue_rectangle <- new_custom_shape_list(
+  type = "rectangle", width = "15cm", height = "2cm", x = "4cm", y = "12cm",
+  draw_style_name = "style_gr_blue", text = "RECTANGLE!!!"
+)
+
+# Now we add all of our items to our current list.
 slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
-  add_to_slide(text_box_2)
+  add_to_slide(text_box_2) |>
+  add_to_slide(pink_ellipse) |>
+  add_to_slide(blue_rectangle)
 
-# Add a joke slide
+# Then we append the current slide to the list of slides.
+# Note! For now you need to ensure the slide is in a list itself.
+# Once the api stabilizes it would be good to refactor this.
+slides <- append(slides, list(slide1))
+
+# Add a joke slide. Here we define the slide and then pipe a text box straight into it.
 slide_sin <- slide_list("Sine wave") |>
   add_to_slide(text_box_list(text = "A spoooooky sine wave!", height = "1cm", width = "10cm", x = "1cm", y = "1cm"))
 
-for (x in seq(from = 1, to = 27, by = 0.5)) {
+# Let's set up a repeating list of letters.
+sin_letters <- paste0(rep(x = "HAPPY HALLOWE'EN ", times = 10), collapse = "") |>
+  stringr::str_split("") |>
+  unlist()
+
+# Then we'll put 50 sequential letters on the slide, with linearly increasing x and
+# sine-wavy y coordinates.
+for (x in seq(from = 1, to = 50, by = 1)) {
   text_box <- text_box_list(
-    text = "O",
+    text = sin_letters[[x]],
     width = "1cm", height = "1cm",
-    x = paste0(x, "cm"),
-    y = paste0(10 + 5 * sin(x / 5), "cm")
+    x = paste0(x / 2, "cm"),
+    y = paste0(10 + 5 * sin(x / 10), "cm")
   )
   slide_sin <- add_to_slide(slide_sin, text_box)
 }
 
-slides <- list(slide1, slide_sin)
+# add this slide to the slides.
+slides <- append(slides, list(slide_sin))
 
+# set up a timestamped filename
 filename <- paste0("test-", Sys.time(), ".odp") |> stringr::str_replace_all(":", "-")
 
-doc |>
+# Take our document, and save the fonts, styles, and slides, then save to our current working folder.
+# Up until this point, `fonts`, `styles`, and `slides` have all been simple R lists.
+# Here, at the last possible moment, we convert them to XML invisibly.
+deck |>
   write_fonts(fonts) |>
   write_styles(styles) |>
   write_slides(slides) |>
   save_pres(filename)
-
 
 # <loext:graphic-properties draw:fill="none" draw:fill-color="#ffffff"/>
 # <style:paragraph-properties fo:text-align="end"/>
