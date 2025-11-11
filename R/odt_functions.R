@@ -50,22 +50,19 @@ text_box_list <- function(
   frame
 }
 
-#' Function that just creates the  text box, but the main funciton also wraps it in a draw:frame
+#' Internal function that just creates the  text box, but the main funciton also wraps it in a draw:frame
 #'
 #' Description of what the function does.
 #' how duplication is measured.
 #'
 #' @param type description
 #' @returns Description of what the function returns.
-#' @export
 text_box_list2 <- function(text, draw_text_style_name) {
   # each line is wrapped in its own p for linebreaks
   list(
     type = "draw:text-box",
     attributes = c(),
-    children = list(
-      text_p_list(text, draw_text_style_name)
-    )
+    children = text_p_list(text, draw_text_style_name)
   )
 }
 
@@ -78,14 +75,9 @@ text_box_list2 <- function(text, draw_text_style_name) {
 #' @returns Description of what the function returns.
 #' @export
 text_p_list <- function(text, text_style_name) {
-  list(
-    type = "text:p",
-    attributes = c(`text:style-name` = text_style_name),
-    children = list(text)
-  )
-  # text |>
-  #   maybe_split_text_lines() |>
-  #   purrr::map(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
+  text |>
+    maybe_split_text_lines() |>
+    purrr::map(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
 }
 
 # internal function
@@ -486,9 +478,9 @@ new_custom_shape_list <- function(
       `svg:x` = x,
       `svg:y` = y
     ),
-    children = list(
+    children = append(
       text_p_list(text, text_style_name),
-      draw_enhanced_geometry_list(type)
+      list(draw_enhanced_geometry_list(type))
     )
   )
 }
@@ -516,7 +508,7 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
       ),
       children = list()
     )
-  } else if (type == "rectangle") {
+  } else if (type == "rectangle") {{
     # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/> # nolint
     list(
       `type` = "draw:enhanced-geometry",
@@ -527,7 +519,7 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
       ),
       children = list()
     )
-  }
+  }}
 } # end function draw_enhanced_geometry_list()
 
 

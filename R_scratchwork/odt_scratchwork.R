@@ -49,7 +49,7 @@ slide1 <- slide_list(name = "A Great Slide (with title for accessibility)")
 
 # Creating a text box and apply some styling.
 text_box_1 <- text_box_list(
-  text = "Hello friends!", width = "10cm",
+  text = "Hello\nfriends!", width = "10cm",
   height = "2cm", x = "1cm", y = "5cm",
   draw_text_style_name = "chris"
 )
