@@ -369,12 +369,14 @@ write_fonts <- function(doc, fonts) {
 new_paragraph_style_list <- function(
     name,
     font_weight = c("regular", "bold"),
+    font_style = c("regular", "italic"),
     font_size = "12pt",
     color = "#000000",
     text_align = c("start", "center", "end"),
     opacity = "100%",
     font_name = "Liberation Sans") {
   font_weight <- match.arg(font_weight, font_weight)
+  font_style <- match.arg(font_style, font_style)
   text_align <- match.arg(text_align, text_align)
 
   style_list <- list(
@@ -388,6 +390,7 @@ new_paragraph_style_list <- function(
         `type` = "style:text-properties",
         `attributes` = c(
           `fo:font-weight` = font_weight,
+          `fo:font-style` = font_style,
           `fo:font-size` = font_size,
           `fo:color` = color,
           `loext:opacity` = opacity,
