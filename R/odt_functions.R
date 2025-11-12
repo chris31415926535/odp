@@ -407,10 +407,12 @@ new_paragraph_style_list <- function(
     color = "#000000",
     text_align = c("start", "center", "end"),
     opacity = "100%",
-    font_name = "Liberation Sans") {
+    font_name = "Liberation Sans",
+    text_underline_style = c("none", "solid")) {
   font_weight <- match.arg(font_weight, font_weight)
   font_style <- match.arg(font_style, font_style)
   text_align <- match.arg(text_align, text_align)
+  text_underline_style <- match.arg(text_underline_style, text_underline_style)
 
   style_list <- list(
     `type` = "style:style",
@@ -434,6 +436,14 @@ new_paragraph_style_list <- function(
         `type` = "style:paragraph-properties",
         `attributes` = c(
           `fo:text-align` = text_align
+        )
+      ),
+      list(
+        `type` = "style:text-properties",
+        `attributes` = c(
+          `style:text-underline-style` = text_underline_style,
+          `style:text-underline-width` = "auto",
+          `style:text-underline-color` = "font-color"
         )
       )
     )

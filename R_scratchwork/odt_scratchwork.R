@@ -16,7 +16,7 @@ fonts <- list(new_font_list(name = "FreeSerif"))
 # This is kind of like defining CSS classes.
 style_pg_chris <- new_paragraph_style_list(
   name = "chris", color = "#6502ff", font_weight = "bold",
-  font_name = "FreeSerif", text_align = "end"
+  font_name = "FreeSerif", text_align = "end", text_underline_style = "solid"
 )
 style_pg_center <- new_paragraph_style_list(
   name = "style_pg_center", text_align = "center"
