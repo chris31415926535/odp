@@ -2,17 +2,13 @@
 % Please edit documentation in R/odt_functions.R
 \name{new_pres}
 \alias{new_pres}
-\title{Create a new presentation. This returns an XML object and also has side effects on disk.}
+\title{Create a new presentation.}
 \usage{
 new_pres()
 }
-\arguments{
-\item{type}{description}
-}
 \value{
-Description of what the function returns.
+A new presentation object, plus side effects on disk to set it up.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+This returns an XML object and also has side effects on disk.
 }

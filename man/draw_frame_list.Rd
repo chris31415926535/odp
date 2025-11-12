@@ -15,10 +15,22 @@ draw_frame_list(
 )
 }
 \arguments{
-\item{type}{description}
+\item{width}{Character. Width in cm. e.g. "10cm"}
+
+\item{height}{Character. Height in cm. e.g. "10cm"}
+
+\item{x}{Character. Leftmost position in cm. e.g. "10cm"}
+
+\item{y}{Character. Topmost position in cm. e.g. "10cm"}
+
+\item{draw_layer}{Character. Default "layout".}
+
+\item{draw_style_name}{Character. The draw style to apply. Default "gr1".}
+
+\item{draw_text_style_name}{Character. The text style to apply. Default "P1".}
 }
 \value{
-Description of what the function returns.
+A draw:frame list object.
 }
 \description{
 Description of what the function does.

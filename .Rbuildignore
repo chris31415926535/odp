@@ -1,3 +1,6 @@
 ^odp\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.lintr$
+temp
+R_scratchwork

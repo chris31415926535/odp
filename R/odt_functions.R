@@ -7,8 +7,14 @@
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param  width Character. Width in cm. e.g. "10cm"
+#' @param  height Character. Height in cm. e.g. "10cm"
+#' @param  x Character. Leftmost position in cm. e.g. "10cm"
+#' @param  y Character. Topmost position in cm. e.g. "10cm"
+#' @param draw_layer Character. Default "layout".
+#' @param draw_style_name Character. The draw style to apply. Default "gr1".
+#' @param draw_text_style_name Character. The text style to apply. Default "P1".
+#' @returns A draw:frame list object.
 #' @export
 draw_frame_list <- function(
     width, height, x, y,
@@ -36,8 +42,15 @@ draw_frame_list <- function(
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param text The text to display. Linebreaks will be parsed into separate paragraphs.
+#' @param   width Character. Width in cm. e.g. "10cm"
+#' @param  height Character. Height in cm. e.g. "10cm"
+#' @param  x Character. Leftmost position in cm. e.g. "10cm"
+#' @param  y Character. Topmost position in cm. e.g. "10cm"
+#' @param draw_layer Character. Default "layout".
+#' @param draw_style_name Character. The draw style to apply. Default "gr1".
+#' @param draw_text_style_name Character. The text style to apply. Default "P1".
+#' @returns A textbox list item.
 #' @export
 text_box_list <- function(
     text, width, height, x, y,
@@ -55,7 +68,8 @@ text_box_list <- function(
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
+#' @param text Character. The text to display.
+#' @param draw_text_style_name Character. The name of the text style to apply.
 #' @returns Description of what the function returns.
 text_box_list2 <- function(text, draw_text_style_name) {
   # each line is wrapped in its own p for linebreaks
@@ -71,13 +85,14 @@ text_box_list2 <- function(text, draw_text_style_name) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param text Character. The text to display.
+#' @param text_style_name Character. The name of the text style to apply.
+#' @returns A list of one or more text:p list items.
 #' @export
 text_p_list <- function(text, text_style_name) {
   text |>
     maybe_split_text_lines() |>
-    purrr::map(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
+    lapply(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
 }
 
 # internal function
@@ -92,8 +107,8 @@ do_text_p_list <- function(text, text_style_name) {
 # if text is a string, split it at any linebreaks
 maybe_split_text_lines <- function(text) {
   if (is.character(text)) {
-    text |>
-      stringr::str_split("\n", simplify = TRUE)
+    strsplit(x = text, split = "\n") |>
+      unlist()
   } else {
     text
   }
@@ -101,10 +116,7 @@ maybe_split_text_lines <- function(text) {
 
 #' Create a slide item in list format
 #'
-#' Description of what the function does.
-#' how duplication is measured.
-#'
-#' @param type description
+#' @param name Character. Slide name. Will go in e.g. pdf index. Important for accessibility.
 #' @returns Description of what the function returns.
 #' @export
 slide_list <- function(name = "slide") {
@@ -117,18 +129,27 @@ slide_list <- function(name = "slide") {
 
 #' Create an image item in list format
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Only works with png or svg images. This function has side
+#' effects and creates a temp copy of the image on disk to it
+#' can be embedded in the output odp file.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param img_filepath Character. Path to image to be inserted.
+#' @param  width Character. Width in cm. e.g. "10cm"
+#' @param  height Character. Height in cm. e.g. "10cm"
+#' @param  x Character. Leftmost position in cm. e.g. "10cm"
+#' @param  y Character. Topmost position in cm. e.g. "10cm"
+#' @param alt_text Character. Alt text for image. Important for accessibility.
+#' @param draw_layer Character. Default "layout".
+#' @param draw_style_name Character. The draw style to apply. Default "gr1".
+#' @param draw_text_style_name Character. The text style to apply. Default "P1".
+#' @returns An image object that can be added to a slide.
 #' @export
-image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer = "layout", draw_style_name = "gr2", draw_text_style_name = "P1") { # nolint
+image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") { # nolint
 
   #  img path local to presentation folder
-  img_filename <- stringr::str_split(img_filepath, "/") |>
+  img_filename <- strsplit(x = img_filepath, split = "/") |>
     unlist() |>
-    tail(1) |>
+    utils::tail(1) |>
     (\(file) (sprintf(fmt = "Pictures/%s", file)))()
 
   # destination to copy it to temp folder
@@ -175,13 +196,16 @@ image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer =
 
 ### COVERT LIST TO XML
 
-#' Recursive funciton to parse list into xml???
+#' Recursive funciton to parse list into xml.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
-#'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param item A list representing an XML data structure. Each node is
+#'             represented as a list with the following named members.
+#'             type: Character. The type of node. E.g. "draw:image"
+#'             attrbutes: Named character vector, with names as attribute
+#'                        names and values as attribute values.
+#'             children:  NULL or character or list. If character, raw text.
+#'                        If list, list of child nodes of this same type.
+#' @returns An XML tree created by the package xml2.
 #' @export
 list_item_to_xml <- function(item) {
   node <- xml2::read_xml(sprintf("<%s />", item$type)) |>
@@ -204,9 +228,10 @@ list_item_to_xml <- function(item) {
   }
 
   node
-}
+} # end function list_item_to_xml()
 
 
+# Plaintext version of empty LibreOffice presentation. Loaded and parsed in new_pres()
 # nolint start
 empty_xml_text <- '<office:document-content xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:officeooo="http://openoffice.org/2009/office" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" office:version="1.4">
 <office:scripts/>
@@ -244,15 +269,12 @@ empty_xml_text <- '<office:document-content xmlns:anim="urn:oasis:names:tc:opend
 # nolint end
 
 
-#' Create a new presentation. This returns an XML object and also has side effects on disk.
+#' Create a new presentation.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' This returns an XML object and also has side effects on disk.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @returns A new presentation object, plus side effects on disk to set it up.
 #' @export
-
 new_pres <- function() {
   Sys.setenv("temp_dir" = sprintf("%s/pres", tempdir()))
   unlink(x = Sys.getenv("temp_dir"), recursive = TRUE, force = TRUE) |> suppressWarnings()
@@ -276,7 +298,8 @@ new_pres <- function() {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
+#' @param doc The deck object to save.
+#' @param filename The filename in the current working folder to save the output.
 #' @returns Description of what the function returns.
 #' @export
 save_pres <- function(doc, filename) {
@@ -305,12 +328,14 @@ save_pres <- function(doc, filename) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param doc A deck object.
+#' @param styles A list of styles created new_paragraph_style_list() or
+#'               odp::new_graphics_style_list().
+#' @returns An updated deck object with the styles added to it.
 #' @export
 write_styles <- function(doc, styles) {
   automatic_styles <- xml2::xml_child(doc, "office:automatic-styles")
-  purrr::walk(
+  lapply(
     styles,
     \(style) xml2::xml_add_child(automatic_styles, list_item_to_xml(style))
   )
@@ -322,17 +347,17 @@ write_styles <- function(doc, styles) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param doc A deck object.
+#' @param slides A list of slides.
+#' @returns The deck object with the slides added.
 #' @export
 write_slides <- function(doc, slides) {
   pres_node <- xml2::xml_find_first(doc, ".//office:presentation")
 
-  purrr::walk(
+  lapply(
     slides,
     \(slide) xml2::xml_add_child(pres_node, list_item_to_xml(slide))
   )
-
   doc
 } # end function write_slides
 
@@ -342,13 +367,14 @@ write_slides <- function(doc, slides) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param doc A deck object.
+#' @param fonts A list of font declarations from new_font_list().
+#' @returns The deck object with the fonts applied.
 #' @export
 write_fonts <- function(doc, fonts) {
   fonts_node <- xml2::xml_child(doc, "office:font-face-decls")
 
-  purrr::walk(
+  lapply(
     fonts,
     \(font) xml2::xml_add_child(fonts_node, list_item_to_xml(font))
   )
@@ -363,8 +389,15 @@ write_fonts <- function(doc, fonts) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param  name The style's name. This is used in text_box_list() to apply the style.
+#' @param font_weight Character. c("regular", "bold").
+#' @param font_style Character. c("regular", "italic").
+#' @param font_size Character. Font size in pts. Default "12pt".
+#' @param color Character. Text colour in hex format. Default "#000000".
+#' @param text_align Character. c("start", "center", "end").
+#' @param opacity Character. Opacity in percent. Default "100%".
+#' @param font_name character. Default "Liberation Sans".
+#' @returns A paragraph style list item.
 #' @export
 new_paragraph_style_list <- function(
     name,
@@ -412,11 +445,12 @@ new_paragraph_style_list <- function(
 # <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/> # nolint
 #' Define new font for use in the deck.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Does not install fonts or check that they are available.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param     name Character. Name of the font.
+#' @param font_family_generic Character. Default "system".
+#' @param    font_pitch  Character. Default "variable".
+#' @returns A new font declaration in list format.
 #' @export
 new_font_list <- function(
     name,
@@ -441,8 +475,9 @@ new_font_list <- function(
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param slide A slide to add the item to.
+#' @param item An item to add to the slide. E.g. output of text_box_list(), new_custom_shape_list().
+#' @returns The input slide with the new item added to it.
 #' @export
 add_to_slide <- function(slide, item) {
   slide$children <- append(slide$children, list(item))
@@ -456,7 +491,14 @@ add_to_slide <- function(slide, item) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
+#' @param type  Character. c("rectangle", "ellipse")
+#' @param width Character. Width in cm. e.g. "10cm"
+#' @param height Character. Height in cm. e.g. "10cm"
+#' @param x Character. Leftmost position in cm. e.g. "10cm"
+#' @param y Character. Topmost position in cm. e.g. "10cm"
+#' @param draw_style_name Character. The draw style to apply. Default "gr1".
+#' @param text_style_name Character. The text style to apply. Default "P1".
+#' @param text Character. Text to include in shape. Default "".
 #' @returns Description of what the function returns.
 #' @export
 new_custom_shape_list <- function(
@@ -488,13 +530,9 @@ new_custom_shape_list <- function(
   )
 }
 
-#' Create enhanced geometry item. Not used by user
-#'
-#' Description of what the function does.
-#' how duplication is measured.
-#'
-#' @param type description
-#' @returns Description of what the function returns.
+#  Internal function. Create enhanced geometry item. Not used by user
+# @param type Character. c("ellipse", "rectangle").
+# @returns A list defining a basic geometry shape.
 draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
   # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
   # draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163" #nolint
@@ -540,8 +578,14 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @param name Character. Name of the style, used later to apply it.
+#' @param stroke_color Character. Stroke colour in hex format. Default "#000000".
+#' @param stroke_opacity Character. Default "100%".
+#' @param fill_type Character. c("none", "solid").
+#' @param fill_color Character. Default "#FFFFFF".
+#' @param fill_opacity Character. Default "100%".
+#' @param decorative Boolean. Default TRUE.
+#' @returns A new graphic style item.
 #' @export
 new_graphic_style_list <- function(
     name,
@@ -580,13 +624,11 @@ new_graphic_style_list <- function(
 } # end function new_graphic_style_list()
 
 
-#' A field that will display the current page number. goes inside a text box
+#' A field for the current page/slide number.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' This field item should be used inside a text box.
 #'
-#' @param type description
-#' @returns Description of what the function returns.
+#' @returns A field showing the current page number.
 #' @export
 field_page_num_list <- function() {
   list(
@@ -619,7 +661,7 @@ write_manifest <- function(deck) {
 
   manifest_xml <- xml2::read_xml(paste0(temp_dir, "/META-INF/manifest.xml"))
 
-  purrr::walk(image_files, \(filename) xml2::xml_add_child(manifest_xml, create_manifest_img_xml(filename)))
+  lapply(image_files, \(filename) xml2::xml_add_child(manifest_xml, create_manifest_img_xml(filename)))
   xml2::write_xml(x = manifest_xml, file = paste0(temp_dir, "/META-INF/manifest.xml"))
 
   deck

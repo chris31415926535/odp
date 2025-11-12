@@ -12,17 +12,34 @@ image_list(
   y,
   alt_text,
   draw_layer = "layout",
-  draw_style_name = "gr2",
+  draw_style_name = "gr1",
   draw_text_style_name = "P1"
 )
 }
 \arguments{
-\item{type}{description}
+\item{img_filepath}{Character. Path to image to be inserted.}
+
+\item{width}{Character. Width in cm. e.g. "10cm"}
+
+\item{height}{Character. Height in cm. e.g. "10cm"}
+
+\item{x}{Character. Leftmost position in cm. e.g. "10cm"}
+
+\item{y}{Character. Topmost position in cm. e.g. "10cm"}
+
+\item{alt_text}{Character. Alt text for image. Important for accessibility.}
+
+\item{draw_layer}{Character. Default "layout".}
+
+\item{draw_style_name}{Character. The draw style to apply. Default "gr1".}
+
+\item{draw_text_style_name}{Character. The text style to apply. Default "P1".}
 }
 \value{
-Description of what the function returns.
+An image object that can be added to a slide.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Only works with png or svg images. This function has side
+effects and creates a temp copy of the image on disk to it
+can be embedded in the output odp file.
 }

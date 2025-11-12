@@ -16,7 +16,21 @@ new_custom_shape_list(
 )
 }
 \arguments{
-\item{type}{description}
+\item{type}{Character. c("rectangle", "ellipse")}
+
+\item{width}{Character. Width in cm. e.g. "10cm"}
+
+\item{height}{Character. Height in cm. e.g. "10cm"}
+
+\item{x}{Character. Leftmost position in cm. e.g. "10cm"}
+
+\item{y}{Character. Topmost position in cm. e.g. "10cm"}
+
+\item{draw_style_name}{Character. The draw style to apply. Default "gr1".}
+
+\item{text_style_name}{Character. The text style to apply. Default "P1".}
+
+\item{text}{Character. Text to include in shape. Default "".}
 }
 \value{
 Description of what the function returns.

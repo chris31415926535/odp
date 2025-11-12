@@ -7,10 +7,13 @@
 write_styles(doc, styles)
 }
 \arguments{
-\item{type}{description}
+\item{doc}{A deck object.}
+
+\item{styles}{A list of styles created new_paragraph_style_list() or
+odp::new_graphics_style_list().}
 }
 \value{
-Description of what the function returns.
+An updated deck object with the styles added to it.
 }
 \description{
 Description of what the function does.

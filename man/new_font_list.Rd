@@ -7,12 +7,15 @@
 new_font_list(name, font_family_generic = "system", font_pitch = "variable")
 }
 \arguments{
-\item{type}{description}
+\item{name}{Character. Name of the font.}
+
+\item{font_family_generic}{Character. Default "system".}
+
+\item{font_pitch}{Character. Default "variable".}
 }
 \value{
-Description of what the function returns.
+A new font declaration in list format.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Does not install fonts or check that they are available.
 }

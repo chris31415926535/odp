@@ -16,10 +16,24 @@ new_paragraph_style_list(
 )
 }
 \arguments{
-\item{type}{description}
+\item{name}{The style's name. This is used in text_box_list() to apply the style.}
+
+\item{font_weight}{Character. c("regular", "bold").}
+
+\item{font_style}{Character. c("regular", "italic").}
+
+\item{font_size}{Character. Font size in pts. Default "12pt".}
+
+\item{color}{Character. Text colour in hex format. Default "#000000".}
+
+\item{text_align}{Character. c("start", "center", "end").}
+
+\item{opacity}{Character. Opacity in percent. Default "100\%".}
+
+\item{font_name}{character. Default "Liberation Sans".}
 }
 \value{
-Description of what the function returns.
+A paragraph style list item.
 }
 \description{
 Description of what the function does.

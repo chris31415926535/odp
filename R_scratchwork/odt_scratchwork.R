@@ -107,7 +107,7 @@ slide_sin <- slide_list("Sine wave") |>
 
 # Let's set up a repeating list of letters.
 sin_letters <- paste0(rep(x = "HAPPY HALLOWE'EN ", times = 10), collapse = "") |>
-  stringr::str_split("") |>
+  strsplit(split = "") |>
   unlist()
 
 # Then we'll put 50 sequential letters on the slide, with linearly increasing x and
@@ -127,7 +127,8 @@ slides <- append(slides, list(slide_sin))
 
 # set up a timestamped filename
 filename <- paste0("test-", Sys.time(), ".odp") |>
-  stringr::str_replace_all(":", "-")
+  gsub(pattern = ":", replacement = "-")
+
 
 # Save the fonts, styles, and slides, and save an odp file in our current working folder.
 # Up until this point, `fonts`, `styles`, and `slides` have all been simple R lists.

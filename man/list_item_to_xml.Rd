@@ -2,17 +2,22 @@
 % Please edit documentation in R/odt_functions.R
 \name{list_item_to_xml}
 \alias{list_item_to_xml}
-\title{Recursive funciton to parse list into xml???}
+\title{Recursive funciton to parse list into xml.}
 \usage{
 list_item_to_xml(item)
 }
 \arguments{
-\item{type}{description}
+\item{item}{A list representing an XML data structure. Each node is
+represented as a list with the following named members.
+type: Character. The type of node. E.g. "draw:image"
+attrbutes: Named character vector, with names as attribute
+names and values as attribute values.
+children:  NULL or character or list. If character, raw text.
+If list, list of child nodes of this same type.}
 }
 \value{
-Description of what the function returns.
+An XML tree created by the package xml2.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Recursive funciton to parse list into xml.
 }

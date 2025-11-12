@@ -7,7 +7,9 @@
 text_box_list2(text, draw_text_style_name)
 }
 \arguments{
-\item{type}{description}
+\item{text}{Character. The text to display.}
+
+\item{draw_text_style_name}{Character. The name of the text style to apply.}
 }
 \value{
 Description of what the function returns.

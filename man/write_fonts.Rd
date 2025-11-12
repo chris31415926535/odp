@@ -7,10 +7,12 @@
 write_fonts(doc, fonts)
 }
 \arguments{
-\item{type}{description}
+\item{doc}{A deck object.}
+
+\item{fonts}{A list of font declarations from new_font_list().}
 }
 \value{
-Description of what the function returns.
+The deck object with the fonts applied.
 }
 \description{
 Description of what the function does.

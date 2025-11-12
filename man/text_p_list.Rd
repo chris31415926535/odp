@@ -7,10 +7,12 @@
 text_p_list(text, text_style_name)
 }
 \arguments{
-\item{type}{description}
+\item{text}{Character. The text to display.}
+
+\item{text_style_name}{Character. The name of the text style to apply.}
 }
 \value{
-Description of what the function returns.
+A list of one or more text:p list items.
 }
 \description{
 Description of what the function does.

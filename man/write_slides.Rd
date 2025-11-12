@@ -7,10 +7,12 @@
 write_slides(doc, slides)
 }
 \arguments{
-\item{type}{description}
+\item{doc}{A deck object.}
+
+\item{slides}{A list of slides.}
 }
 \value{
-Description of what the function returns.
+The deck object with the slides added.
 }
 \description{
 Description of what the function does.

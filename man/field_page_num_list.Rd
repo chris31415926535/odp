@@ -2,17 +2,13 @@
 % Please edit documentation in R/odt_functions.R
 \name{field_page_num_list}
 \alias{field_page_num_list}
-\title{A field that will display the current page number. goes inside a text box}
+\title{A field for the current page/slide number.}
 \usage{
 field_page_num_list()
 }
-\arguments{
-\item{type}{description}
-}
 \value{
-Description of what the function returns.
+A field showing the current page number.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+This field item should be used inside a text box.
 }

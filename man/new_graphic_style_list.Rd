@@ -15,10 +15,22 @@ new_graphic_style_list(
 )
 }
 \arguments{
-\item{type}{description}
+\item{name}{Character. Name of the style, used later to apply it.}
+
+\item{stroke_color}{Character. Stroke colour in hex format. Default "#000000".}
+
+\item{stroke_opacity}{Character. Default "100\%".}
+
+\item{fill_type}{Character. c("none", "solid").}
+
+\item{fill_color}{Character. Default "#FFFFFF".}
+
+\item{fill_opacity}{Character. Default "100\%".}
+
+\item{decorative}{Boolean. Default TRUE.}
 }
 \value{
-Description of what the function returns.
+A new graphic style item.
 }
 \description{
 Description of what the function does.

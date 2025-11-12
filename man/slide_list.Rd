@@ -7,12 +7,11 @@
 slide_list(name = "slide")
 }
 \arguments{
-\item{type}{description}
+\item{name}{Character. Slide name. Will go in e.g. pdf index. Important for accessibility.}
 }
 \value{
 Description of what the function returns.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Create a slide item in list format
 }

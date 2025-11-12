@@ -7,10 +7,12 @@
 add_to_slide(slide, item)
 }
 \arguments{
-\item{type}{description}
+\item{slide}{A slide to add the item to.}
+
+\item{item}{An item to add to the slide. E.g. output of text_box_list(), new_custom_shape_list().}
 }
 \value{
-Description of what the function returns.
+The input slide with the new item added to it.
 }
 \description{
 Description of what the function does.

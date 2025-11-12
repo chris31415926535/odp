@@ -7,7 +7,9 @@
 save_pres(doc, filename)
 }
 \arguments{
-\item{type}{description}
+\item{doc}{The deck object to save.}
+
+\item{filename}{The filename in the current working folder to save the output.}
 }
 \value{
 Description of what the function returns.
