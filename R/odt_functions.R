@@ -626,12 +626,14 @@ write_manifest <- function(deck) {
 # for an image added to the deck, create a new child node for the manifest.xml
 # called from write_manifest()
 create_manifest_img_xml <- function(filename) {
-  media_type <- if (grepl(x = filename, pattern = ".png", fixed = TRUE)) {
+  media_type <- if (grepl(x = tolower(filename), pattern = ".png", fixed = TRUE)) {
     "image/png"
   } else if (
-    grepl(x = filename, pattern = ".svg", fixed = TRUE)
+    grepl(x = tolower(filename), pattern = ".svg", fixed = TRUE)
   ) {
     "image/svg+xml"
+  } else {
+    stop(sprintf("Problem with image file %s: Images should be PNG or SVG.", filename))
   }
 
   xml_txt <- sprintf('<manifest version="1.4" xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" >
