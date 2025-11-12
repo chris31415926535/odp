@@ -7,6 +7,7 @@
 new_paragraph_style_list(
   name,
   font_weight = c("regular", "bold"),
+  font_style = c("regular", "italic"),
   font_size = "12pt",
   color = "#000000",
   text_align = c("start", "center", "end"),

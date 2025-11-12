@@ -2,7 +2,7 @@
 % Please edit documentation in R/odt_functions.R
 \name{text_box_list2}
 \alias{text_box_list2}
-\title{Function that just creates the  text box, but the main funciton also wraps it in a draw:frame}
+\title{Internal function that just creates the  text box, but the main funciton also wraps it in a draw:frame}
 \usage{
 text_box_list2(text, draw_text_style_name)
 }

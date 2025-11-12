@@ -3,7 +3,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of odp is to create work-ready Open Document Presentation files with no external dependencies and that works well with open-source software like LibreOffice.
+The goal of odp is to create LibreOffice-compatible Open Document Presentation files with no external dependencies.
 
 At present this project is **not** intended to implement the full Open Document technical specification. It is pragmatically focused on what is needed to produce work-ready office documents, namely:
 
