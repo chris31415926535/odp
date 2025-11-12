@@ -590,8 +590,10 @@ new_graphic_style_list <- function(
 #' @export
 field_page_num_list <- function() {
   list(
-    `type` = "text:page-number",
-    children = c("&lt;number&gt;")
+    list(
+      `type` = "text:page-number",
+      children = c("&lt;number&gt;")
+    )
   )
 } # end function field_page_num_list()
 
