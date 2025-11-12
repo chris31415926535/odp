@@ -136,4 +136,10 @@ deck |>
   write_fonts(fonts) |>
   write_styles(styles) |>
   write_slides(slides) |>
+  write_manifest() |>
   save_pres(filename)
+
+
+
+
+### manifest

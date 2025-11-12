@@ -594,3 +594,49 @@ field_page_num_list <- function() {
     children = c("&lt;number&gt;")
   )
 } # end function field_page_num_list()
+
+
+
+
+#' Write the manifest.xml for any images added to the presentation
+#'
+#' Returns the deck object unmodified, but has side-effects on disk.
+#'
+#' @param deck A deck object.
+#' @returns The deck unmodified, but has side-effects on disk.
+#' @export
+write_manifest <- function(deck) {
+  temp_dir <- Sys.getenv("temp_dir")
+
+  # skip if no pictures, no need to update manifest
+  if (!dir.exists(paste0(temp_dir, "/Pictures"))) {
+    return(deck)
+  }
+
+  image_files <- paste0("Pictures/", list.files(paste0(temp_dir, "/Pictures")))
+
+  manifest_xml <- xml2::read_xml(paste0(temp_dir, "/META-INF/manifest.xml"))
+
+  purrr::walk(image_files, \(filename) xml2::xml_add_child(manifest_xml, create_manifest_img_xml(filename)))
+  xml2::write_xml(x = manifest_xml, file = paste0(temp_dir, "/META-INF/manifest.xml"))
+
+  deck
+} # end function write_manifest()
+
+# for an image added to the deck, create a new child node for the manifest.xml
+# called from write_manifest()
+create_manifest_img_xml <- function(filename) {
+  media_type <- if (grepl(x = filename, pattern = ".png", fixed = TRUE)) {
+    "image/png"
+  } else if (
+    grepl(x = filename, pattern = ".svg", fixed = TRUE)
+  ) {
+    "image/svg+xml"
+  }
+
+  xml_txt <- sprintf('<manifest version="1.4" xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" >
+   <manifest:file-entry manifest:full-path="%s" manifest:media-type="%s" /> </manifest>', filename, media_type)
+
+  xml2::read_xml(xml_txt) |>
+    xml2::xml_child()
+} # end function create_manifest_img_xml()

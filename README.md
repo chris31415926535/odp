@@ -20,9 +20,9 @@ The R package [_officer_](https://ardata-fr.github.io/officeverse/index.html) is
 
 _This package is in its very early stages and all of this may change._
 
-I want this package to be simple to use and easy to reason about. This is harder than it seems, because an .odt file is surprisingly complex: it is actually a zip file containing a number of .xml files and other things. And .xml files are particularly awful to work with in R, because they are loaded as a complex extremely un-R-like data structure with lots of modify-in-place side effects and pointers. They are difficult to reason about.
+I want this package to be simple to use and easy to reason about. This is harder than it seems, because an .odt file is surprisingly complex: it is actually a zip file containing many .xml files and other things. And XML is awful to work with in R, because it is a complex extremely un-R-like data structure with lots of modify-in-place side effects and pointers.
 
-So in _odt_ we take a different tack. We define our presentation primarily using in-memory R objects (lists, but they should eventually be typed classes), and then only convert them to XML after we are done defining them.
+So in _odt_ we take a different tack. We define our presentation primarily using in-memory R objects (lists, but they should eventually be typed classes), and then only convert them to XML at the last possible moment.
 
 At present, however, _odt_ also uses some side-effects. When a new deck is initialized, a temporary folder is created and a blank presentation (from LibreOffice) is unzipped to provide an empty scaffold. This is mostly unused, except that any images added to the presentation are copied into the "Pictures" folder within this template. Then, when the user is ready to save their presentation, they write styles, fonts, and slides to disk and save a local copy of the presentation by compressing the temporary folder.
 
@@ -41,7 +41,7 @@ The process is intended to be:
 
 ## Known issues
 
-- Adding images will create a "broken" file that LibreOffice can fix. I believe this is because I'm not updating manifest.xml
+- Page numbers not rendering properly (rendering literal field definitions instead of interpreted values)
 
 ## TODO
 
@@ -51,8 +51,8 @@ The process is intended to be:
 - ~~Page numbers~~
 - ~~Basic text and shape styling~~
 - Links
-- Fix manifest.xml for images
-- Refactor in a clever way to do all image copying at write time, so we don't actually need the temp folder the whole time?
+- ~~Fix manifest.xml for images~~
+- Refactor in a clever way to do all magic side-effects once at write time?
 
 ## Installation
 
@@ -188,6 +188,7 @@ deck |>
   write_fonts(fonts) |>
   write_styles(styles) |>
   write_slides(slides) |>
+  write_manifest() |>
   save_pres(filename)
 
 ```
