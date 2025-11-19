@@ -81,12 +81,18 @@ page_num <- text_box_list(
   text = field_page_num_list()
 )
 
+rounded_rect <- odp::new_custom_shape_list(
+  type = "round-rectangle", width = "10cm", height = "4cm", x = "15cm", y = "8cm",
+  rect_radius = 8500, draw_style_name = "style_gr_blue"
+)
+
 # Now we add all of our items to our current list.
 slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
   add_to_slide(text_box_2) |>
   add_to_slide(pink_ellipse) |>
   add_to_slide(blue_rectangle) |>
+  add_to_slide(rounded_rect) |>
   add_to_slide(page_num)
 
 # Then we append the current slide to the list of slides.

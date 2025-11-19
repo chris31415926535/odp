@@ -9,8 +9,8 @@ write_styles(doc, styles)
 \arguments{
 \item{doc}{A deck object.}
 
-\item{styles}{A list of styles created new_paragraph_style_list() or
-odp::new_graphics_style_list().}
+\item{styles}{A list of styles created new_paragraph_style() or
+odp::new_graphics_style().}
 }
 \value{
 An updated deck object with the styles added to it.

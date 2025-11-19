@@ -9,7 +9,7 @@ write_fonts(doc, fonts)
 \arguments{
 \item{doc}{A deck object.}
 
-\item{fonts}{A list of font declarations from new_font_list().}
+\item{fonts}{A list of font declarations from new_font().}
 }
 \value{
 The deck object with the fonts applied.

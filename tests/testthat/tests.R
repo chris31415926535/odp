@@ -1,4 +1,4 @@
-testthat::test_that("text_p_list()", {
+testthat::test_that("text_p()", {
   # simple one
   expected_p1 <- list()
   expected_p1$type <- "text:p"
@@ -6,7 +6,7 @@ testthat::test_that("text_p_list()", {
   expected_p1$children <- list("hello")
 
   testthat::expect_equal(
-    odp::text_p_list(text = "hello", text_style_name = "style"),
+    odp::text_p(text = "hello", text_style_name = "style"),
     list(expected_p1)
   )
 
@@ -17,7 +17,7 @@ testthat::test_that("text_p_list()", {
   expected_p2$children <- list("there")
 
   testthat::expect_equal(
-    odp::text_p_list(text = "hello\nthere", text_style_name = "style"),
+    odp::text_p(text = "hello\nthere", text_style_name = "style"),
     list(expected_p1, expected_p2)
   )
 })

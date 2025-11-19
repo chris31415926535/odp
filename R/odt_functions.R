@@ -16,7 +16,7 @@
 #' @param draw_text_style_name Character. The text style to apply. Default "P1".
 #' @returns A draw:frame list object.
 #' @export
-draw_frame_list <- function(
+draw_frame <- function(
     width, height, x, y,
     draw_layer = "layout",
     draw_style_name = "gr1",
@@ -52,12 +52,12 @@ draw_frame_list <- function(
 #' @param draw_text_style_name Character. The text style to apply. Default "P1".
 #' @returns A textbox list item.
 #' @export
-text_box_list <- function(
+text_box <- function(
     text, width, height, x, y,
     draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") {
-  frame <- draw_frame_list(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
+  frame <- draw_frame(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
 
-  textbox <- text_box_list2(text, draw_text_style_name = draw_text_style_name)
+  textbox <- text_box2(text, draw_text_style_name = draw_text_style_name)
 
   frame$children <- append(frame$children, list(textbox))
   frame
@@ -71,12 +71,12 @@ text_box_list <- function(
 #' @param text Character. The text to display.
 #' @param draw_text_style_name Character. The name of the text style to apply.
 #' @returns Description of what the function returns.
-text_box_list2 <- function(text, draw_text_style_name) {
+text_box2 <- function(text, draw_text_style_name) {
   # each line is wrapped in its own p for linebreaks
   list(
     type = "draw:text-box",
     attributes = c(),
-    children = text_p_list(text, draw_text_style_name)
+    children = text_p(text, draw_text_style_name)
   )
 }
 
@@ -89,14 +89,14 @@ text_box_list2 <- function(text, draw_text_style_name) {
 #' @param text_style_name Character. The name of the text style to apply.
 #' @returns A list of one or more text:p list items.
 #' @export
-text_p_list <- function(text, text_style_name) {
+text_p <- function(text, text_style_name) {
   text |>
     maybe_split_text_lines() |>
-    lapply(\(line) do_text_p_list(text = line, text_style_name = text_style_name))
+    lapply(\(line) do_text_p(text = line, text_style_name = text_style_name))
 }
 
 # internal function
-do_text_p_list <- function(text, text_style_name) {
+do_text_p <- function(text, text_style_name) {
   list(
     type = "text:p",
     attributes = c(`text:style-name` = text_style_name),
@@ -119,7 +119,7 @@ maybe_split_text_lines <- function(text) {
 #' @param name Character. Slide name. Will go in e.g. pdf index. Important for accessibility.
 #' @returns Description of what the function returns.
 #' @export
-slide_list <- function(name = "slide") {
+new_slide <- function(name = "slide") {
   list(
     type = "draw:page",
     attributes = c(`draw:name` = name),
@@ -144,7 +144,7 @@ slide_list <- function(name = "slide") {
 #' @param draw_text_style_name Character. The text style to apply. Default "P1".
 #' @returns An image object that can be added to a slide.
 #' @export
-image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") { # nolint
+new_image <- function(img_filepath, width, height, x, y, alt_text, draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") { # nolint
 
   #  img path local to presentation folder
   img_filename <- strsplit(x = img_filepath, split = "/") |>
@@ -167,7 +167,7 @@ image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer =
 
   system(sys_copy_cmd)
 
-  frame <- draw_frame_list(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
+  frame <- draw_frame(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
 
   img <- list(
     type = "draw:image",
@@ -190,7 +190,7 @@ image_list <- function(img_filepath, width, height, x, y, alt_text, draw_layer =
   frame$children <- append(frame$children, list(img))
   frame$children <- append(frame$children, list(alt_text))
   frame
-} # end function image_list()
+} # end function new_image()
 
 
 
@@ -329,8 +329,8 @@ save_pres <- function(doc, filename) {
 #' how duplication is measured.
 #'
 #' @param doc A deck object.
-#' @param styles A list of styles created new_paragraph_style_list() or
-#'               odp::new_graphics_style_list().
+#' @param styles A list of styles created new_paragraph_style() or
+#'               odp::new_graphics_style().
 #' @returns An updated deck object with the styles added to it.
 #' @export
 write_styles <- function(doc, styles) {
@@ -368,7 +368,7 @@ write_slides <- function(doc, slides) {
 #' how duplication is measured.
 #'
 #' @param doc A deck object.
-#' @param fonts A list of font declarations from new_font_list().
+#' @param fonts A list of font declarations from new_font().
 #' @returns The deck object with the fonts applied.
 #' @export
 write_fonts <- function(doc, fonts) {
@@ -389,7 +389,7 @@ write_fonts <- function(doc, fonts) {
 #' Description of what the function does.
 #' how duplication is measured.
 #'
-#' @param  name The style's name. This is used in text_box_list() to apply the style.
+#' @param  name The style's name. This is used in text_box() to apply the style.
 #' @param font_weight Character. c("regular", "bold").
 #' @param font_style Character. c("regular", "italic").
 #' @param font_size Character. Font size in pts. Default "12pt".
@@ -397,9 +397,10 @@ write_fonts <- function(doc, fonts) {
 #' @param text_align Character. c("start", "center", "end").
 #' @param opacity Character. Opacity in percent. Default "100%".
 #' @param font_name character. Default "Liberation Sans".
+#' @param text_underline_style Character. c("none", "solid")).
 #' @returns A paragraph style list item.
 #' @export
-new_paragraph_style_list <- function(
+new_paragraph_style <- function(
     name,
     font_weight = c("regular", "bold"),
     font_style = c("regular", "italic"),
@@ -450,7 +451,7 @@ new_paragraph_style_list <- function(
   )
 
   style_list
-} # end function new_paragraph_style_list
+} # end function new_paragraph_style
 
 # <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/> # nolint
 #' Define new font for use in the deck.
@@ -462,7 +463,7 @@ new_paragraph_style_list <- function(
 #' @param    font_pitch  Character. Default "variable".
 #' @returns A new font declaration in list format.
 #' @export
-new_font_list <- function(
+new_font <- function(
     name,
     font_family_generic = "system",
     font_pitch = "variable") {
@@ -486,7 +487,7 @@ new_font_list <- function(
 #' how duplication is measured.
 #'
 #' @param slide A slide to add the item to.
-#' @param item An item to add to the slide. E.g. output of text_box_list(), new_custom_shape_list().
+#' @param item An item to add to the slide. E.g. output of text_box(), new_custom_shape().
 #' @returns The input slide with the new item added to it.
 #' @export
 add_to_slide <- function(slide, item) {
@@ -509,17 +510,19 @@ add_to_slide <- function(slide, item) {
 #' @param draw_style_name Character. The draw style to apply. Default "gr1".
 #' @param text_style_name Character. The text style to apply. Default "P1".
 #' @param text Character. Text to include in shape. Default "".
-#' @returns Description of what the function returns.
+#' @param rect_radius Numeric. Value between 0 and 10800, higher numbers give rounder rounded rectangles.
+#' @returns A custom shape list object.
 #' @export
-new_custom_shape_list <- function(
-    type = c("rectangle", "ellipse"),
+new_custom_shape <- function(
+    type = c("rectangle", "ellipse", "round-rectangle"),
     width,
     height,
     x,
     y,
     draw_style_name = "gr1",
     text_style_name = "P1",
-    text = "") {
+    text = "",
+    rect_radius = 0) {
   type <- match.arg(type, type)
 
   list(
@@ -534,16 +537,17 @@ new_custom_shape_list <- function(
       `svg:y` = y
     ),
     children = append(
-      text_p_list(text, text_style_name),
-      list(draw_enhanced_geometry_list(type))
+      text_p(text, text_style_name),
+      list(draw_enhanced_geometry(type, rect_radius))
     )
   )
 }
 
 #  Internal function. Create enhanced geometry item. Not used by user
-# @param type Character. c("ellipse", "rectangle").
+# @param type Character. c("ellipse", "rectangle", "rect_radius").
+# @param rect_radius Numeric. Value between 0 and 10800, higher numbers give rounder rounded rectangles.
 # @returns A list defining a basic geometry shape.
-draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
+draw_enhanced_geometry <- function(type = c("ellipse", "rectangle", "round-rectangle"), rect_radius) {
   # <draw:enhanced-geometry svg:viewBox="0 0 21600 21600"
   # draw:glue-points="10800 0 3163 3163 0 10800 3163 18437 10800 21600 18437 18437 21600 10800 18437 3163" #nolint
   # draw:text-areas="3163 3163 18437 18437" draw:type="ellipse" draw:enhanced-path="U 10800 10800 10800 10800 0 360 Z N"/> #nolint
@@ -570,8 +574,100 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
       ),
       children = list()
     )
-  }}
-} # end function draw_enhanced_geometry_list()
+  }} else if (type == "round-rectangle") {
+    list(
+      `type` = "draw:enhanced-geometry",
+      attributes = c(
+        `svg:viewBox` = "0 0 21600 21600",
+        `draw:path-stretchpoint-x` = "10800",
+        `draw:path-stretchpoint-y` = "10800",
+        `draw:text-areas` = "?f3 ?f4 ?f5 ?f6",
+        `draw:type` = "round-rectangle",
+        `draw:modifiers` = rect_radius,
+        `draw:enhanced-path` = "M ?f7 0 X 0 ?f8 L 0 ?f9 Y ?f7 21600 L ?f10 21600 X 21600 ?f9 L 21600 ?f8 Y ?f10 0 Z N"
+      ),
+      children = list(
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f0",
+            `draw:formula` = "85" #rect_radius
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f1",
+            `draw:formula` = "$0 *sin(?f0 *(pi/180))"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f2",
+            `draw:formula` = "?f1 *3163/7636"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f3",
+            `draw:formula` = "left+?f2"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f4",
+            `draw:formula` = "top+?f2"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f5",
+            `draw:formula` = "right-?f2"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f6",
+            `draw:formula` = "bottom-?f2"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f7",
+            `draw:formula` = "left+$0"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f8",
+            `draw:formula` = "top+$0"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f9",
+            `draw:formula` = "bottom-$0"
+          )
+        ),
+        list(
+          `type` = "draw:equation",
+          attributes = c(
+            `draw:name` = "f10",
+            `draw:formula` = "right-$0"
+          )
+        )
+      )
+    )
+  }
+} # end function draw_enhanced_geometry()
 
 
 
@@ -597,7 +693,7 @@ draw_enhanced_geometry_list <- function(type = c("ellipse", "rectangle")) {
 #' @param decorative Boolean. Default TRUE.
 #' @returns A new graphic style item.
 #' @export
-new_graphic_style_list <- function(
+new_graphic_style <- function(
     name,
     stroke_color = "#000000",
     stroke_opacity = "100%",
@@ -631,7 +727,7 @@ new_graphic_style_list <- function(
   )
 
   style_list
-} # end function new_graphic_style_list()
+} # end function new_graphic_style()
 
 
 #' A field for the current page/slide number.
@@ -640,14 +736,14 @@ new_graphic_style_list <- function(
 #'
 #' @returns A field showing the current page number.
 #' @export
-field_page_num_list <- function() {
+field_page_num <- function() {
   list(
     list(
       `type` = "text:page-number",
       children = c("&lt;number&gt;")
     )
   )
-} # end function field_page_num_list()
+} # end function field_page_num()
 
 
 
