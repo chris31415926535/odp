@@ -42,3 +42,49 @@ testthat::test_that("create_manifest_img_xml()", {
   # file extension other than svg, png throws  error
   testthat::expect_error(create_manifest_img_xml("test.txt"))
 })
+
+testthat::test_that("new_custom_shape()", {
+  # can create and parse shapes without error
+  testthat::expect_no_error({
+    rect <- new_custom_shape(
+      type = "rectangle",
+      width = "1cm",
+      height = "1cm",
+      x = "1cm",
+      y = "1cm",
+      draw_style_name = "gr1",
+      text_style_name = "P1",
+      text = "some text",
+      alt_text = "some alt text",
+      rect_radius = 0
+    )
+    ellipse <- new_custom_shape(
+      type = "ellipse",
+      width = "1cm",
+      height = "1cm",
+      x = "1cm",
+      y = "1cm",
+      draw_style_name = "gr1",
+      text_style_name = "P1",
+      text = "some text",
+      alt_text = "some alt text",
+      rect_radius = 0
+    )
+    round_rect <- new_custom_shape(
+      type = "round-rectangle",
+      width = "1cm",
+      height = "1cm",
+      x = "1cm",
+      y = "1cm",
+      draw_style_name = "gr1",
+      text_style_name = "P1",
+      text = "some text",
+      alt_text = "some alt text",
+      rect_radius = 0
+    )
+
+    list_item_to_xml(rect)
+    list_item_to_xml(ellipse)
+    list_item_to_xml(round_rect)
+  })
+})

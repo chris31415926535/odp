@@ -13,6 +13,7 @@ new_custom_shape(
   draw_style_name = "gr1",
   text_style_name = "P1",
   text = "",
+  alt_text = "",
   rect_radius = 0
 )
 }
@@ -32,6 +33,8 @@ new_custom_shape(
 \item{text_style_name}{Character. The text style to apply. Default "P1".}
 
 \item{text}{Character. Text to include in shape. Default "".}
+
+\item{alt_text}{Character. Alt text for image. Important for accessibility.}
 
 \item{rect_radius}{Numeric. Value between 0 and 10800, higher numbers give rounder rounded rectangles.}
 }

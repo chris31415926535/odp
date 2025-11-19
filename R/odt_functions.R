@@ -510,6 +510,7 @@ add_to_slide <- function(slide, item) {
 #' @param draw_style_name Character. The draw style to apply. Default "gr1".
 #' @param text_style_name Character. The text style to apply. Default "P1".
 #' @param text Character. Text to include in shape. Default "".
+#' @param alt_text Character. Alt text for image. Important for accessibility.
 #' @param rect_radius Numeric. Value between 0 and 10800, higher numbers give rounder rounded rectangles.
 #' @returns A custom shape list object.
 #' @export
@@ -522,8 +523,15 @@ new_custom_shape <- function(
     draw_style_name = "gr1",
     text_style_name = "P1",
     text = "",
+    alt_text = "",
     rect_radius = 0) {
   type <- match.arg(type, type)
+
+  alt_text <- list(
+    type = "svg:desc",
+    attributes = c(),
+    children = alt_text
+  )
 
   list(
     `type` = "draw:custom-shape",
@@ -538,7 +546,7 @@ new_custom_shape <- function(
     ),
     children = append(
       text_p(text, text_style_name),
-      list(draw_enhanced_geometry(type, rect_radius))
+      list(draw_enhanced_geometry(type, rect_radius), alt_text)
     )
   )
 }
@@ -591,7 +599,7 @@ draw_enhanced_geometry <- function(type = c("ellipse", "rectangle", "round-recta
           `type` = "draw:equation",
           attributes = c(
             `draw:name` = "f0",
-            `draw:formula` = "85" #rect_radius
+            `draw:formula` = "85" # rect_radius
           )
         ),
         list(
