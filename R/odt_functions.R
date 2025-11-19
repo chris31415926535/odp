@@ -73,12 +73,19 @@ text_box <- function(
 #' @returns Description of what the function returns.
 text_box2 <- function(text, draw_text_style_name) {
   # each line is wrapped in its own p for linebreaks
-  list(
-    type = "draw:text-box",
-    attributes = c(),
-    children = text_p(text, draw_text_style_name)
-  )
-}
+  if (is.character(text)) {
+    list(
+      type = "draw:text-box",
+      attributes = c(),
+      children = text_p(text, draw_text_style_name)
+    )
+  } else if (is.list(text)) {
+    list(
+      type = "draw:text-box",
+      children =list( new_list(text))
+    )
+  }
+} # end function text_box2
 
 #' Create a text:p item in list format
 #'
@@ -97,12 +104,16 @@ text_p <- function(text, text_style_name) {
 
 # internal function
 do_text_p <- function(text, text_style_name) {
-  list(
+  the_p <- list(
     type = "text:p",
-    attributes = c(`text:style-name` = text_style_name),
     children = list(text)
   )
-}
+  if (!is.na(text_style_name)) {
+    the_p$attributes <- c(`text:style-name` = text_style_name)
+  }
+
+  the_p
+} # end function do_text_p()
 
 # if text is a string, split it at any linebreaks
 maybe_split_text_lines <- function(text) {
@@ -800,3 +811,48 @@ create_manifest_img_xml <- function(filename) {
   xml2::read_xml(xml_txt) |>
     xml2::xml_child()
 } # end function create_manifest_img_xml()
+
+
+
+
+#' Create a list
+#'
+#' Must be embedded in a text_box().
+#'
+#' @param list_contents Character vector or list. Character vector will give
+#'  an unordered list. List will give a sublist.
+#' @param text_style_name Character. name of text style.
+#' @export
+new_list <- function(list_contents, text_style_name = NA) {
+  thelist <- list(
+    `type` = "text:list",
+    # attributes = c(
+    #   # `text:style-name` = text_style_name
+    # ),
+    `children` = lapply(X = list_contents, FUN = handle_list_contents)
+  )
+
+  if (!is.na(text_style_name)) {
+    thelist$attributes <- c(`text:style-name` = text_style_name)
+  }
+
+  thelist
+} # end funciton new_list()
+
+handle_list_contents <- function(list_contents) {
+  contents <- if (is.character(list_contents) || is.numeric(list_contents)) {
+    # handle base list item
+    text_p(list_contents, NA)[[1]] # fixme
+  } else if (is.list(list_contents)) {
+    # handle sub-list
+    new_list(list_contents)
+  } else {
+    # something wrong
+    stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
+  }
+
+  list(
+    `type` = "text:list-item",
+    children = list(contents)
+  )
+} # end function handle_list_contents()

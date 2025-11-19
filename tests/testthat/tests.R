@@ -2,19 +2,17 @@ testthat::test_that("text_p()", {
   # simple one
   expected_p1 <- list()
   expected_p1$type <- "text:p"
-  expected_p1$attributes <- c(`text:style-name` = "style")
   expected_p1$children <- list("hello")
+  expected_p1$attributes <- c(`text:style-name` = "style")
 
-  testthat::expect_equal(
-    odp::text_p(text = "hello", text_style_name = "style"),
-    list(expected_p1)
-  )
+  actual_p1 <- odp::text_p(text = "hello", text_style_name = "style")
+  testthat::expect_equal(actual_p1, list(expected_p1))
 
   # with line break
   expected_p2 <- list()
   expected_p2$type <- "text:p"
-  expected_p2$attributes <- c(`text:style-name` = "style")
   expected_p2$children <- list("there")
+  expected_p2$attributes <- c(`text:style-name` = "style")
 
   testthat::expect_equal(
     odp::text_p(text = "hello\nthere", text_style_name = "style"),
@@ -86,5 +84,30 @@ testthat::test_that("new_custom_shape()", {
     list_item_to_xml(rect)
     list_item_to_xml(ellipse)
     list_item_to_xml(round_rect)
+  })
+})
+
+testthat::test_that("text_box()", {
+  # minimal condition, we can make simple text box and convert to xml without error
+  testthat::expect_no_error({
+    test_text_box <- text_box("sadf", width = "1cm", height = "1cm", x = "1cm", y = "1cm")
+    list_item_to_xml(test_text_box)
+  })
+  # minimal condition, we can make a list in a text box and convert to xml without error
+  testthat::expect_no_error({
+    list_text_box <- text_box(list("sadf", "asdf"), width = "1cm", height = "1cm", x = "1cm", y = "1cm")
+    list_item_to_xml(list_text_box)
+  })
+})
+
+testthat::test_that("new_list()", {
+  # minimal condition: we can make a list and convert it to xml without error
+  testthat::expect_no_error({
+    test_list <- new_list(list("a", "b"))
+    list_item_to_xml(test_list)
+  })
+  testthat::expect_no_error({
+    test_list <- new_list(list("a", "b", list("c", "d")))
+    list_item_to_xml(test_list)
   })
 })
