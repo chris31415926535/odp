@@ -41,7 +41,7 @@ The process is intended to be:
 
 ## Known issues
 
-- Page numbers not rendering properly (rendering literal field definitions instead of interpreted values)
+- List formatting is wonky (i.e. doesn't work)
 
 ## TODO
 
@@ -52,7 +52,7 @@ The process is intended to be:
 - ~~Basic text and shape styling~~
 - Links
 - ~~Fix manifest.xml for images~~
-- Refactor in a clever way to do all magic side-effects once at write time?
+- ~~Refactor in a clever way to do all magic side-effects once at write time?~~ *Mostly!*
 
 ## Installation
 
@@ -67,8 +67,6 @@ devtools::install_github("chris31415926535/odp")
 This is a basic example which shows you how to create a simple presentation:
 
 ```r
-library(odp)
-
 devtools::load_all()
 
 # Create a new presentation. This has invisible side effects!
@@ -81,43 +79,52 @@ deck <- new_pres()
 slides <- list()
 
 # Initialize a new font
-fonts <- list(new_font_list(name = "FreeSerif"))
+fonts <- list(new_font(name = "FreeSerif"))
 
 # Define some styles. Give them memorable names, we will refer back to them.
 # This is kind of like defining CSS classes.
-style_pg_chris <- new_paragraph_style_list(
+style_pg_chris <- new_paragraph_style(
   name = "chris", color = "#6502ff", font_weight = "bold",
-  font_name = "FreeSerif", text_align = "end"
+  font_name = "FreeSerif", text_align = "end", text_underline_style = "solid"
 )
-style_pg_center <- new_paragraph_style_list(
+style_pg_center <- new_paragraph_style(
   name = "style_pg_center", text_align = "center"
 )
 
-style_gr_pink <- new_graphic_style_list(
+style_pg_pagenum <- new_paragraph_style(
+  name = "style_pg_pagenum", font_size = "8pt"
+)
+
+
+
+style_gr_pink <- new_graphic_style(
   name = "style_gr_pink", fill_type = "solid",
   fill_color = "#FF00FF", decorative = FALSE
 )
 
-style_gr_blue <- new_graphic_style_list(
+style_gr_blue <- new_graphic_style(
   name = "style_gr_blue", fill_type = "solid", fill_color = "#3c26ff",
   stroke_color = "#ff0000", decorative = FALSE
 )
 
 # Put all of our styles in a list.
-styles <- list(style_pg_chris, style_pg_center, style_gr_pink, style_gr_blue)
+styles <- list(
+  style_pg_chris, style_pg_center, style_pg_pagenum,
+  style_gr_pink, style_gr_blue
+)
 
 # Create our first slide. Give it a catchy title.
-slide1 <- slide_list(name = "A Great Slide (with title for accessibility)")
+slide1 <- new_slide(name = "A Great Slide (with title for accessibility)")
 
 # Creating a text box and apply some styling.
-text_box_1 <- text_box_list(
-  text = "Hello friends!", width = "10cm",
+text_box_1 <- text_box(
+  text = "Hello\nfriends!", width = "10cm",
   height = "2cm", x = "1cm", y = "5cm",
   draw_text_style_name = "chris"
 )
 
 # Another text box, different styling.
-text_box_2 <- text_box_list(
+text_box_2 <- text_box(
   text = "Happy centered text!",
   width = "10cm", height = "3cm", x = "1cm", y = "8cm",
   draw_text_style_name = "style_pg_center"
@@ -125,15 +132,27 @@ text_box_2 <- text_box_list(
 
 # Create a pink ellipse. Note that it's pink because we're applying a style we
 # defined above.
-pink_ellipse <- new_custom_shape_list(
+pink_ellipse <- new_custom_shape(
   type = "ellipse", width = "5cm", height = "9cm", x = "10cm", y = "3cm",
   draw_style_name = "style_gr_pink", text = "ELLIPSE!!!"
 )
 
 # Create a blue rectangle.
-blue_rectangle <- new_custom_shape_list(
+blue_rectangle <- new_custom_shape(
   type = "rectangle", width = "15cm", height = "2cm", x = "4cm", y = "12cm",
   draw_style_name = "style_gr_blue", text = "RECTANGLE!!!"
+)
+
+# Create a styled page number. This is a field and so can be added on each page.
+page_num <- text_box(
+  draw_text_style_name = "style_pg_pagenum",
+  width = "1cm", height = "1cm", x = "26.9cm", y = "14.65cm",
+  text = field_page_num()
+)
+
+rounded_rect <- odp::new_custom_shape(
+  type = "round-rectangle", width = "10cm", height = "4cm", x = "15cm", y = "8cm",
+  rect_radius = 8500, draw_style_name = "style_gr_blue"
 )
 
 # Now we add all of our items to our current list.
@@ -141,7 +160,9 @@ slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
   add_to_slide(text_box_2) |>
   add_to_slide(pink_ellipse) |>
-  add_to_slide(blue_rectangle)
+  add_to_slide(blue_rectangle) |>
+  add_to_slide(rounded_rect) |>
+  add_to_slide(page_num)
 
 # Then we append the current slide to the list of slides.
 # Note! For now you need to ensure the slide is in a list itself.
@@ -149,23 +170,25 @@ slide1 <- slide1 |>
 slides <- append(slides, list(slide1))
 
 # Add a joke slide. Here we define the slide and then pipe a text box straight into it.
-slide_sin <- slide_list("Sine wave") |>
+# We also add the slide number. (You might want to add it later for accessibility reasons.)
+slide_sin <- new_slide("Sine wave") |>
   add_to_slide(
-    text_box_list(
+    text_box(
       text = "A spoooooky sine wave!",
       height = "1cm", width = "10cm", x = "1cm", y = "1cm"
     )
-  )
+  ) |>
+  add_to_slide(page_num)
 
 # Let's set up a repeating list of letters.
 sin_letters <- paste0(rep(x = "HAPPY HALLOWE'EN ", times = 10), collapse = "") |>
-  stringr::str_split("") |>
+  strsplit(split = "") |>
   unlist()
 
 # Then we'll put 50 sequential letters on the slide, with linearly increasing x and
 # sine-wavy y coordinates.
 for (x in seq(from = 1, to = 50, by = 1)) {
-  text_box <- text_box_list(
+  text_box <- text_box(
     text = sin_letters[[x]],
     width = "1cm", height = "1cm",
     x = paste0(x / 2, "cm"),
@@ -179,7 +202,8 @@ slides <- append(slides, list(slide_sin))
 
 # set up a timestamped filename
 filename <- paste0("test-", Sys.time(), ".odp") |>
-  stringr::str_replace_all(":", "-")
+  gsub(pattern = ":", replacement = "-")
+
 
 # Save the fonts, styles, and slides, and save an odp file in our current working folder.
 # Up until this point, `fonts`, `styles`, and `slides` have all been simple R lists.
@@ -190,5 +214,4 @@ deck |>
   write_slides(slides) |>
   write_manifest() |>
   save_pres(filename)
-
 ```

@@ -82,7 +82,7 @@ text_box2 <- function(text, draw_text_style_name) {
   } else if (is.list(text)) {
     list(
       type = "draw:text-box",
-      children =list( new_list(text))
+      children =list( new_list(text, draw_text_style_name))
     )
   }
 } # end function text_box2
@@ -829,7 +829,7 @@ new_list <- function(list_contents, text_style_name = NA) {
     # attributes = c(
     #   # `text:style-name` = text_style_name
     # ),
-    `children` = lapply(X = list_contents, FUN = handle_list_contents)
+    `children` = lapply(X = list_contents, FUN = \(x) handle_list_contents(x, text_style_name))
   )
 
   if (!is.na(text_style_name)) {
@@ -839,13 +839,13 @@ new_list <- function(list_contents, text_style_name = NA) {
   thelist
 } # end funciton new_list()
 
-handle_list_contents <- function(list_contents) {
+handle_list_contents <- function(list_contents, text_style_name) {
   contents <- if (is.character(list_contents) || is.numeric(list_contents)) {
     # handle base list item
-    text_p(list_contents, NA)[[1]] # fixme
+    text_p(list_contents, text_style_name)[[1]] # fixme
   } else if (is.list(list_contents)) {
     # handle sub-list
-    new_list(list_contents)
+    new_list(list_contents, text_style_name)
   } else {
     # something wrong
     stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
