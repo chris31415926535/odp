@@ -4,14 +4,29 @@
 \alias{new_list}
 \title{Create a list}
 \usage{
-new_list(list_contents, text_style_name = NA)
+new_list(..., contents_list = NA, list_style_name = "L1", text_style_name = NA)
 }
 \arguments{
-\item{list_contents}{Character vector or list. Character vector will give
-an unordered list. List will give a sublist.}
+\item{...}{Comma-separated text_p()  or new_list() items. The text to display.}
 
-\item{text_style_name}{Character. name of text style.}
+\item{contents_list}{List. A list of text_p() or new_list() items prepared previously.
+Overrides any values provided to \code{...}.}
+
+\item{list_style_name}{Character. Name of list style.}
+
+\item{text_style_name}{Character. Name of new_paragraph_style() output style.}
 }
 \description{
 Must be embedded in a text_box().
+}
+\details{
+Contents must be provided in ONE of two ways. First, they can be provided
+as comma-separated arguments which will be processed by R's "..." argument.
+Arguments provided this way should be results of calls to text_p().
+
+OR, arguments can be provided in a list of text_p() objects provided to
+the function parameter \code{contents_list}. This is useful if e.g. you want to
+prepare the contents procedurally and then add then to a paragraph later.
+
+If \code{contents_list} is provided, it overrides anything provided to \code{...}.
 }

@@ -1,23 +1,43 @@
+testthat::test_that("text_span()", {
+  # unstyled span works
+  expected_t1 <- list()
+  expected_t1$type <- "text:span"
+  expected_t1$children <- c("unstyled!")
+  actual_t1 <- text_span("unstyled!")
+  testthat::expect_equal(expected_t1, actual_t1)
+  testthat::expect_null(expected_t1$attributes)
+
+
+  # styled span works
+  expected_t2 <- list()
+  expected_t2$type <- "text:span"
+  expected_t2$children <- c("unstyled!")
+  expected_t2$attributes <- c(`text:style-name` = "stylish")
+  actual_t2 <- text_span("unstyled!", style_name = "stylish")
+  testthat::expect_equal(expected_t2, actual_t2)
+})
+
 testthat::test_that("text_p()", {
   # simple one
   expected_p1 <- list()
   expected_p1$type <- "text:p"
-  expected_p1$children <- list("hello")
+  expected_p1$children <- list(text_span("hello"))
   expected_p1$attributes <- c(`text:style-name` = "style")
 
-  actual_p1 <- odp::text_p(text = "hello", text_style_name = "style")
-  testthat::expect_equal(actual_p1, list(expected_p1))
+  actual_p1 <- text_p(text_span("hello"), text_style_name = "style")
+  testthat::expect_equal(actual_p1, expected_p1)
 
+  # FIXME TODO this was syntactic sugar that I removed for now.
   # with line break
-  expected_p2 <- list()
-  expected_p2$type <- "text:p"
-  expected_p2$children <- list("there")
-  expected_p2$attributes <- c(`text:style-name` = "style")
+  # expected_p2 <- list()
+  # expected_p2$type <- "text:p"
+  # expected_p2$children <- list("there")
+  # expected_p2$attributes <- c(`text:style-name` = "style")
 
-  testthat::expect_equal(
-    odp::text_p(text = "hello\nthere", text_style_name = "style"),
-    list(expected_p1, expected_p2)
-  )
+  # testthat::expect_equal(
+  #   text_p(text = "hello\nthere", text_style_name = "style"),
+  #   list(expected_p1, expected_p2)
+  # )
 })
 
 
@@ -90,12 +110,13 @@ testthat::test_that("new_custom_shape()", {
 testthat::test_that("text_box()", {
   # minimal condition, we can make simple text box and convert to xml without error
   testthat::expect_no_error({
-    test_text_box <- text_box("sadf", width = "1cm", height = "1cm", x = "1cm", y = "1cm")
+    test_text_box <- text_box(text = list(text_p(text_span("hello!"))), width = "1cm", height = "1cm", x = "1cm", y = "1cm")
     list_item_to_xml(test_text_box)
   })
-  # minimal condition, we can make a list in a text box and convert to xml without error
+  # minimal condition, we can put several paragraphs in  a text box and convert to xml without error
   testthat::expect_no_error({
-    list_text_box <- text_box(list("sadf", "asdf"), width = "1cm", height = "1cm", x = "1cm", y = "1cm")
+    text <- text_p(text_span("howdy!"))
+    list_text_box <- text_box(list(text, text), width = "1cm", height = "1cm", x = "1cm", y = "1cm")
     list_item_to_xml(list_text_box)
   })
 })
@@ -103,11 +124,24 @@ testthat::test_that("text_box()", {
 testthat::test_that("new_list()", {
   # minimal condition: we can make a list and convert it to xml without error
   testthat::expect_no_error({
-    test_list <- new_list(list("a", "b"))
+    # passing list item as ... argument
+    test_list <- new_list(text_p(text_span("list item 1")))
+    list_item_to_xml(test_list)
+
+    # passing list item as contents_list argument
+    test_list <- new_list(contents_list = list(text_p(text_span("list item 1"))))
     list_item_to_xml(test_list)
   })
+
+  # and that it handles sub-lists
   testthat::expect_no_error({
-    test_list <- new_list(list("a", "b", list("c", "d")))
+    test_list <- new_list(
+      text_p(text_span("some regular text")),
+      new_list(
+        text_p(text_span("sub-bullet 1")),
+        text_p(text_span("sub-bullet 2"))
+      )
+    )
     list_item_to_xml(test_list)
   })
 })

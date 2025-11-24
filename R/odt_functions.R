@@ -102,25 +102,48 @@ text_box2 <- function(text, draw_text_style_name) {
 
 #' Create a text:p item in list format
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Contents must be provided in ONE of two ways. First, they can be provided
+#' as comma-separated arguments which will be processed by R's "..." argument.
+#' Arguments provided this way should be results of calls to text_span().
 #'
-#' @param text Character. The text to display.
-#' @param text_style_name Character. The name of the text style to apply.
+#' OR, arguments can be provided in a list of text_span() objects provided to
+#' the function parameter `contents_list`. This is useful if e.g. you want to
+#' prepare the contents procedurally and then add then to a paragraph later.
+#'
+#' If `contents_list` is provided, it overrides anything provided to `...`.
+#'
+#' @param ... Comma-separated text_span() items. The text to display.
+#' @param contents_list List. A list of text_span() items prepared previously.
+#'        Overrides any values provided to `...`.
+#' @param text_style_name Character. Name of new_paragraph_style() output style.
 #' @returns A list of one or more text:p list items.
 #' @export
-text_p <- function(text, text_style_name = NA) {
+text_p <- function(..., contents_list = NA, text_style_name = NA) {
   # FOR NOW, say text must be a list. FIXME!
   # FOR NOW, say text must be a list OF SPANS. FIXME!
   # text |>
   #   maybe_split_text_lines() |>
   #   lapply(\(line) do_text_p(text = line, text_style_name = text_style_name))
+  # text is either a list of objects in contents_list, or else objects provided unlisted in ...
+  text <- if (!all(is.na(contents_list))) {
+    if (!is.list(contents_list)) {
+      stop("contents_list argument must contain a list() of contents. (Most like text_span() objects.)")
+    }
+    contents_list
+  } else {
+    list(...)
+  }
+
   if (!is.list(text)) {
     stop("FOR NOW! text_p() input must be a list.")
   }
 
-  if (!text[[1]]$type %in% c("text:span", "text:list")) {
-    stop("FOR NOW! text_() input must be list of text:span or text:list objects.")
+  if (length(text) == 0) {
+    stop("Must provide at least one child. Either a list of text_span() objects to contents_list, or one or more text_span() objects passed as regualr arguments.") # nolint
+  }
+
+  if (!text[[1]]$type %in% c("text:span")) {
+    stop("FOR NOW! text_p() input must be list of text:span objects.")
   }
 
   the_p <- list(
@@ -267,6 +290,9 @@ new_image <- function(img_filepath, width, height, x, y, alt_text, draw_layer = 
 #' @returns An XML tree created by the package xml2.
 #' @export
 list_item_to_xml <- function(item) {
+  if (is.null(item$type)) {
+    stop("Error: property `type` does not exist on object: ", as.character(item))
+  }
   node <- xml2::read_xml(sprintf("<%s />", item$type)) |>
     suppressWarnings()
 
@@ -679,11 +705,16 @@ new_custom_shape <- function(
     children = alt_text
   )
 
+  # if text is character, make a text_p(text_span()) for it. otherwise pass through
+  text_child <- if (all(is.character(text))) {
+    list(text_p(text_span(text, style_name = text_style_name), text_style_name = text_style_name))
+  } else if (is.list(text_child)) {
+    text_child
+  }
   list(
     `type` = "draw:custom-shape",
     attributes = c(
       `draw:style-name` = draw_style_name,
-      # `draw:text-style-name` = text_style_name,
       `draw:layer` = "layout",
       `svg:width` = width,
       `svg:height` = height,
@@ -691,7 +722,7 @@ new_custom_shape <- function(
       `svg:y` = y
     ),
     children = append(
-      text_p(text, text_style_name),
+      text_child,
       list(draw_enhanced_geometry(type, rect_radius), alt_text)
     )
   )
@@ -954,19 +985,50 @@ create_manifest_img_xml <- function(filename) {
 #'
 #' Must be embedded in a text_box().
 #'
-#' @param list_contents Character vector or list. Character vector will give
-#'  an unordered list. List will give a sublist.
-#' @param text_style_name Character. name of text style.
+#' Contents must be provided in ONE of two ways. First, they can be provided
+#' as comma-separated arguments which will be processed by R's "..." argument.
+#' Arguments provided this way should be results of calls to text_p().
+#'
+#' OR, arguments can be provided in a list of text_p() objects provided to
+#' the function parameter `contents_list`. This is useful if e.g. you want to
+#' prepare the contents procedurally and then add then to a paragraph later.
+#'
+#' If `contents_list` is provided, it overrides anything provided to `...`.
+#'
+#' @param ... Comma-separated text_p()  or new_list() items. The text to display.
+#' @param contents_list List. A list of text_p() or new_list() items prepared previously.
+#'        Overrides any values provided to `...`.
+#' @param list_style_name Character. Name of list style.
+#' @param text_style_name Character. Name of new_paragraph_style() output style.
 #' @export
-new_list <- function(list_contents, list_style_name = "L1", text_style_name = NA) {
+new_list <- function(..., contents_list = NA, list_style_name = "L1", text_style_name = NA) {
   # TODO! Right now it just passes list contents through silently. list children need to be text_ps at least FIXME
+
+  contents <- if (!all(is.na(contents_list))) {
+    if (!is.list(contents_list)) {
+      stop("contents_list argument must contain a list() of text_p() objects.)")
+    }
+    contents_list
+  } else {
+    list(...)
+  }
+
+  if (length(contents) == 0) {
+    stop("Must provide at least one child. Either a list of text_p() objects to contents_list, or one or more text_p() objects passed as regualr arguments.") # nolint
+  }
+
+  if (!contents[[1]]$type %in% c("text:p")) {
+    stop("input must be list of text:p objects.")
+  }
+
+
   thelist <- list(
     `type` = "text:list",
     attributes = c(
       `text:style-name` = list_style_name
     ),
     # `children` = list_contents
-    `children` = lapply(X = list_contents, FUN = \(x) handle_list_contents(x, text_style_name))
+    `children` = lapply(X = contents, FUN = \(x) handle_list_contents(x, text_style_name))
   )
 
   # if (!is.na(text_style_name)) {
@@ -988,8 +1050,13 @@ handle_list_contents <- function(list_contents, text_style_name) {
   #   stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
   # }
 
-  list(
+  child <- list(
     `type` = "text:list-item",
     children = list(list_contents)
   )
+  if (!is.na(text_style_name)) {
+    child$attributes <- c(`text:style-name` = text_style_name)
+  }
+
+  child
 } # end function handle_list_contents()

@@ -14,7 +14,8 @@ style_center <- new_paragraph_style("center", text_align = "center")
 style_t_bold <- new_text_style_minimal(name = "bold", font_weight = "bold")
 style_t_italic <- new_text_style_minimal(name = "italic", font_style = "italic")
 style_18pt <- new_text_style_minimal(name = "18pt", font_size = "18pt")
-styles <- list(style_center, style_t_bold, style_t_italic, style_18pt)
+style_8pt <- new_paragraph_style(name = "8pt", font_size = "8pt")
+styles <- list(style_center, style_t_bold, style_t_italic, style_18pt, style_8pt)
 styles[[3]]
 # test_text_list <- text_box(
 #   text = list(
@@ -46,30 +47,35 @@ list_of_spans <- list(
   text_span("!!!!!", style_name = "18pt")
 )
 devtools::load_all()
-test_list <- new_list(list(text_p(list(text_span("hello", style_name = "bold")))))
+test_list <- new_list(text_p(contents_list = list(text_span("hello", style_name = "bold"))))
 
-p_of_spans <- text_p(text = list_of_spans, text_style_name = "center")
+
+text_p(
+  text_span("hello", style_name = "bold"),
+  text_span("hello", style_name = "italic")
+)
+p_of_spans <- text_p(contents_list = list_of_spans, text_style_name = "center")
 
 text_box_of_spans <- text_box(list(p_of_spans, p_of_spans, p_of_spans), width = "10cm", height = "1cm", x = "1cm", y = "1cm")
 
 text_box_of_list <- text_box(list(test_list), width = "10cm", height = "1cm", x = "1cm", y = "5")
-
+text_box_of_list |>
+  list_item_to_xml() |>
+  as.character()
 really_good_one <- list(
   text_p(
-    list(
-      text_span("hello"),
-      text_span(" my friends!", style_name = "bold"),
-      text_span(" Check this out:", style_classes =" bold italic ")
-    )
+    text_style_name = "8pt",
+    text_span("hello"),
+    text_span(" my friends!", style_name = "bold"),
+    text_span(" Check this out:", style_classes = " bold italic ")
   ),
   new_list(
-    list(
-      text_p(list(text_span("One"))),
-        text_p(list(text_span("Two", style_classes = ""))),
-        text_p(list(text_span("Three", style_name = "bold"))),
-        text_p(list(text_span("Fifteen", style_name = "italic")))
-      )
-    )
+      text_p(text_span("One"), text_style_name = "8pt"),
+      text_p(text_span("Two"), text_style_name = "8pt"),
+      text_p(text_span("Three", style_name = "bold"), text_style_name = "8pt"),
+      text_p(text_span("Fifteen", style_name = "italic"), text_style_name = "8pt"),
+    text_style_name = "8pt", list_style_name = "8pt"
+  )
 ) |>
   text_box(width = "10cm", height = "10cm", x = "5cm", y = "8cm")
 

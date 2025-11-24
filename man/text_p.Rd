@@ -4,17 +4,28 @@
 \alias{text_p}
 \title{Create a text:p item in list format}
 \usage{
-text_p(text, text_style_name)
+text_p(..., contents_list = NA, text_style_name = NA)
 }
 \arguments{
-\item{text}{Character. The text to display.}
+\item{...}{Comma-separated text_span() items. The text to display.}
 
-\item{text_style_name}{Character. The name of the text style to apply.}
+\item{contents_list}{List. A list of text_span() items prepared previously.
+Overrides any values provided to \code{...}.}
+
+\item{text_style_name}{Character. Name of new_paragraph_style() output style.}
 }
 \value{
 A list of one or more text:p list items.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Contents must be provided in ONE of two ways. First, they can be provided
+as comma-separated arguments which will be processed by R's "..." argument.
+Arguments provided this way should be results of calls to text_span().
+}
+\details{
+OR, arguments can be provided in a list of text_span() objects provided to
+the function parameter \code{contents_list}. This is useful if e.g. you want to
+prepare the contents procedurally and then add then to a paragraph later.
+
+If \code{contents_list} is provided, it overrides anything provided to \code{...}.
 }
