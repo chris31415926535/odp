@@ -56,8 +56,9 @@ text_box <- function(
     text, width, height, x, y,
     draw_layer = "layout", draw_style_name = "gr1", draw_text_style_name = "P1") {
   frame <- draw_frame(width, height, x, y, draw_layer, draw_style_name, draw_text_style_name)
-
-  textbox <- text_box2(text, draw_text_style_name = draw_text_style_name)
+  #
+  # FOR NOW! textbox3 requires inputs to be list of text:p lists! FIXME
+  textbox <- text_box3(text, draw_text_style_name = draw_text_style_name)
 
   frame$children <- append(frame$children, list(textbox))
   frame
@@ -71,6 +72,18 @@ text_box <- function(
 #' @param text Character. The text to display.
 #' @param draw_text_style_name Character. The name of the text style to apply.
 #' @returns Description of what the function returns.
+text_box3 <- function(text, draw_text_style_name) {
+  # each line is wrapped in its own p for linebreaks
+  # FOR NOW text must be list of text:p lists! FIXME
+  stopifnot(is.list(text))
+  stopifnot(text[[1]]$type %in% c("text:p", "text:list"))
+  list(
+    type = "draw:text-box",
+    attributes = c(),
+    children = text # text_p(text, draw_text_style_name)
+  )
+} # end function text_box2
+
 text_box2 <- function(text, draw_text_style_name) {
   # each line is wrapped in its own p for linebreaks
   if (is.character(text)) {
@@ -82,7 +95,7 @@ text_box2 <- function(text, draw_text_style_name) {
   } else if (is.list(text)) {
     list(
       type = "draw:text-box",
-      children =list( new_list(text, draw_text_style_name))
+      children = list(new_list(text, draw_text_style_name))
     )
   }
 } # end function text_box2
@@ -96,10 +109,29 @@ text_box2 <- function(text, draw_text_style_name) {
 #' @param text_style_name Character. The name of the text style to apply.
 #' @returns A list of one or more text:p list items.
 #' @export
-text_p <- function(text, text_style_name) {
-  text |>
-    maybe_split_text_lines() |>
-    lapply(\(line) do_text_p(text = line, text_style_name = text_style_name))
+text_p <- function(text, text_style_name = NA) {
+  # FOR NOW, say text must be a list. FIXME!
+  # FOR NOW, say text must be a list OF SPANS. FIXME!
+  # text |>
+  #   maybe_split_text_lines() |>
+  #   lapply(\(line) do_text_p(text = line, text_style_name = text_style_name))
+  if (!is.list(text)) {
+    stop("FOR NOW! text_p() input must be a list.")
+  }
+
+  if (!text[[1]]$type %in% c("text:span", "text:list")) {
+    stop("FOR NOW! text_() input must be list of text:span or text:list objects.")
+  }
+
+  the_p <- list(
+    type = "text:p",
+    children = text
+  )
+
+  if (!is.na(text_style_name)) {
+    the_p$attributes <- c(`text:style-name` = text_style_name)
+  }
+  the_p
 }
 
 # internal function
@@ -115,6 +147,22 @@ do_text_p <- function(text, text_style_name) {
   the_p
 } # end function do_text_p()
 
+text_span <- function(text, style_name = NA, style_classes = NA) {
+  the_span <- list(
+    type = "text:span",
+    children = text
+  )
+
+  if (!is.na(style_name)) {
+    the_span$attributes <- c(`text:style-name` = style_name)
+  }
+
+  if (!is.na(style_classes)) {
+    the_span$attributes <- c(`text:class-names` = style_classes)
+  }
+
+  the_span
+}
 # if text is a string, split it at any linebreaks
 maybe_split_text_lines <- function(text) {
   if (is.character(text)) {
@@ -316,7 +364,7 @@ new_pres <- function() {
 save_pres <- function(doc, filename) {
   # Save the context.xml file to disk
   content_xml_filename <- paste0(Sys.getenv("temp_dir"), "/content.xml")
-  xml2::write_xml(x = doc, file = content_xml_filename)
+  xml2::write_xml(x = doc, file = content_xml_filename, options = "")
 
   # compress it
   zip_cmd <- sprintf("cd %s; zip -r output.odp * -x *.odt -x *.odp", Sys.getenv("temp_dir"))
@@ -441,7 +489,10 @@ new_paragraph_style <- function(
           `fo:font-size` = font_size,
           `fo:color` = color,
           `loext:opacity` = opacity,
-          `style:font-name` = font_name
+          `style:font-name` = font_name,
+          `style:text-underline-style` = text_underline_style,
+          `style:text-underline-width` = "auto",
+          `style:text-underline-color` = "font-color"
         )
       ),
       list(
@@ -449,10 +500,46 @@ new_paragraph_style <- function(
         `attributes` = c(
           `fo:text-align` = text_align
         )
-      ),
+      ) # ,
+      # list(
+      #   `type` = "style:text-properties",
+      #   `attributes` = c()
+      # )
+    )
+  )
+
+  style_list
+} # end function new_paragraph_style
+
+new_text_style <- function(
+    name,
+    font_weight = c("regular", "bold"),
+    font_style = c("regular", "italic"),
+    font_size = "12pt",
+    color = "#000000",
+    opacity = "100%",
+    font_name = "Liberation Sans",
+    text_underline_style = c("none", "solid")) {
+  font_weight <- match.arg(font_weight, font_weight)
+  font_style <- match.arg(font_style, font_style)
+  text_underline_style <- match.arg(text_underline_style, text_underline_style)
+
+  style_list <- list(
+    `type` = "style:style",
+    `attributes` = c(
+      `style:name` = name,
+      `style:family` = "text"
+    ),
+    children = list(
       list(
         `type` = "style:text-properties",
         `attributes` = c(
+          `fo:font-weight` = font_weight,
+          `fo:font-style` = font_style,
+          `fo:font-size` = font_size,
+          `fo:color` = color,
+          `loext:opacity` = opacity,
+          `style:font-name` = font_name,
           `style:text-underline-style` = text_underline_style,
           `style:text-underline-width` = "auto",
           `style:text-underline-color` = "font-color"
@@ -462,7 +549,55 @@ new_paragraph_style <- function(
   )
 
   style_list
-} # end function new_paragraph_style
+} # end function new_text_style
+
+maybe_add_to_vector <- function(vector, name, value_or_na) {
+  if (!is.na(value_or_na)) {
+    vector[name] <- value_or_na
+  }
+  vector
+}
+
+
+new_text_style_minimal <- function(
+    name,
+    font_weight = NA,
+    font_style = NA,
+    font_size = NA,
+    color = NA,
+    opacity = NA,
+    font_name = NA,
+    text_underline_style = NA) {
+  attributes <- c() |>
+    maybe_add_to_vector("fo:font-weight", font_weight) |>
+    maybe_add_to_vector("fo:font-style", font_style) |>
+    maybe_add_to_vector("fo:font-size", font_size) |>
+    maybe_add_to_vector("fo:color", color) |>
+    maybe_add_to_vector("loext:opacity", opacity) |>
+    maybe_add_to_vector("style:font-name", font_name) |>
+    maybe_add_to_vector("style:text-underline-style", text_underline_style) |>
+    maybe_add_to_vector("style:text-underline-width", "auto") |>
+    maybe_add_to_vector("style:text-underline-color", "font-color")
+
+  style_list <- list(
+    `type` = "style:style",
+    `attributes` = c(
+      `style:name` = name,
+      `style:family` = "text"
+    ),
+    children = list(
+      list(
+        `type` = "style:text-properties",
+        `attributes` = attributes
+      )
+    )
+  )
+
+  style_list
+} # end function new_text_style
+
+
+
 
 # <style:font-face style:name="FreeSans" svg:font-family="FreeSans" style:font-family-generic="system" style:font-pitch="variable"/> # nolint
 #' Define new font for use in the deck.
@@ -823,36 +958,38 @@ create_manifest_img_xml <- function(filename) {
 #'  an unordered list. List will give a sublist.
 #' @param text_style_name Character. name of text style.
 #' @export
-new_list <- function(list_contents, text_style_name = NA) {
+new_list <- function(list_contents, list_style_name = "L1", text_style_name = NA) {
+  # TODO! Right now it just passes list contents through silently. list children need to be text_ps at least FIXME
   thelist <- list(
     `type` = "text:list",
-    # attributes = c(
-    #   # `text:style-name` = text_style_name
-    # ),
+    attributes = c(
+      `text:style-name` = list_style_name
+    ),
+    # `children` = list_contents
     `children` = lapply(X = list_contents, FUN = \(x) handle_list_contents(x, text_style_name))
   )
 
-  if (!is.na(text_style_name)) {
-    thelist$attributes <- c(`text:style-name` = text_style_name)
-  }
+  # if (!is.na(text_style_name)) {
+  #   thelist$attributes <- c(`text:style-name` = text_style_name)
+  # }
 
   thelist
 } # end funciton new_list()
 
 handle_list_contents <- function(list_contents, text_style_name) {
-  contents <- if (is.character(list_contents) || is.numeric(list_contents)) {
-    # handle base list item
-    text_p(list_contents, text_style_name)[[1]] # fixme
-  } else if (is.list(list_contents)) {
-    # handle sub-list
-    new_list(list_contents, text_style_name)
-  } else {
-    # something wrong
-    stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
-  }
+  # contents <- if (is.character(list_contents) || is.numeric(list_contents)) {
+  #   # handle base list item
+  #   text_span(list_contents, text_style_name) # [[1]] # fixme
+  # } else if (is.list(list_contents)) {
+  #   # handle sub-list
+  #   new_list(list_contents, text_style_name)
+  # } else {
+  #   # something wrong
+  #   stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
+  # }
 
   list(
     `type` = "text:list-item",
-    children = list(contents)
+    children = list(list_contents)
   )
 } # end function handle_list_contents()
