@@ -12,9 +12,13 @@ save_pres(doc, filename)
 \item{filename}{The filename in the current working folder to save the output.}
 }
 \value{
-Description of what the function returns.
+The input deck object, invisibly.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+This function receives a final deck object, performs disk operations as a side effect to create
+an output file, and then returns the original deck object invisibly.
+}
+\details{
+This is the \emph{final step} and should be done after calling write_fonts(), write_styles(), write_manifest(),
+and write_slides(). They can be conveniently piped together, with \code{save_pres()} as the final step.
 }

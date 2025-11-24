@@ -9,13 +9,12 @@ write_styles(doc, styles)
 \arguments{
 \item{doc}{A deck object.}
 
-\item{styles}{A list of styles created new_paragraph_style() or
+\item{styles}{A list of styles created by a style function, e.g. new_paragraph_style() or
 odp::new_graphics_style().}
 }
 \value{
 An updated deck object with the styles added to it.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Update the deck object with user-defined styles.
 }

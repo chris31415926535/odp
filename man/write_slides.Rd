@@ -15,6 +15,6 @@ write_slides(doc, slides)
 The deck object with the slides added.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Update the deck object to write user-defined slides. This should only be
+run once in a final pipeline that ends with \code{save_pres()}.
 }

@@ -33,6 +33,13 @@ draw_frame(
 A draw:frame list object.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+This is used  internally by other functions.
+}
+\details{
+This is the main function for adding text to your slides. Text boxes are
+the highest-level text objects, and they set the geometry for the text:
+where it will go, how large the shape will be, and so on.
+
+Text inside the boxes is provided as a list of text_p() (paragraph) or
+new_list() (list) objects.
 }

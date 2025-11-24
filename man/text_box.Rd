@@ -2,7 +2,7 @@
 % Please edit documentation in R/odt_functions.R
 \name{text_box}
 \alias{text_box}
-\title{Create a textbox list including its wrapping draw_frame}
+\title{Create a text box list including its wrapping draw_frame}
 \usage{
 text_box(
   text,
@@ -16,7 +16,7 @@ text_box(
 )
 }
 \arguments{
-\item{text}{The text to display. Linebreaks will be parsed into separate paragraphs.}
+\item{text}{List. The text to display as a series of text_p() or new_list() objects.}
 
 \item{width}{Character. Width in cm. e.g. "10cm"}
 
@@ -36,6 +36,11 @@ text_box(
 A textbox list item.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+This is the main function for adding text to your slides. Text boxes are
+the highest-level text objects, and they set the geometry for the text:
+where it will go, how large the shape will be, and so on.
+}
+\details{
+Text inside the boxes is provided as a list of text_p() (paragraph) or
+new_list() (list) objects.
 }

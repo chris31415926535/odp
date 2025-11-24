@@ -118,14 +118,17 @@ slide1 <- new_slide(name = "A Great Slide (with title for accessibility)")
 
 # Creating a text box and apply some styling.
 text_box_1 <- text_box(
-  text = "Hello\nfriends!", width = "10cm",
+  text = list(
+    text_p(text_span("Hello\nfriends!"), text_style_name = "chris")
+  ),
+  width = "10cm",
   height = "2cm", x = "1cm", y = "5cm",
   draw_text_style_name = "chris"
 )
 
 # Another text box, different styling.
 text_box_2 <- text_box(
-  text = "Happy centered text!",
+  text = list(text_p(text_span("Happy centered text!"), text_style_name = "style_pg_center")),
   width = "10cm", height = "3cm", x = "1cm", y = "8cm",
   draw_text_style_name = "style_pg_center"
 )
@@ -147,7 +150,7 @@ blue_rectangle <- new_custom_shape(
 page_num <- text_box(
   draw_text_style_name = "style_pg_pagenum",
   width = "1cm", height = "1cm", x = "26.9cm", y = "14.65cm",
-  text = field_page_num()
+  text = list(text_p(text_span(field_page_num()), text_style_name = "style_pg_pagenum"))
 )
 
 rounded_rect <- odp::new_custom_shape(
@@ -162,7 +165,7 @@ slide1 <- slide1 |>
   add_to_slide(pink_ellipse) |>
   add_to_slide(blue_rectangle) |>
   add_to_slide(rounded_rect) |>
-  add_to_slide(page_num)
+   add_to_slide(page_num)
 
 # Then we append the current slide to the list of slides.
 # Note! For now you need to ensure the slide is in a list itself.
@@ -174,7 +177,7 @@ slides <- append(slides, list(slide1))
 slide_sin <- new_slide("Sine wave") |>
   add_to_slide(
     text_box(
-      text = "A spoooooky sine wave!",
+      text = list(text_p(text_span("A spoooooky sine wave!"))),
       height = "1cm", width = "10cm", x = "1cm", y = "1cm"
     )
   ) |>
@@ -189,7 +192,7 @@ sin_letters <- paste0(rep(x = "HAPPY HALLOWE'EN ", times = 10), collapse = "") |
 # sine-wavy y coordinates.
 for (x in seq(from = 1, to = 50, by = 1)) {
   text_box <- text_box(
-    text = sin_letters[[x]],
+    text = list(text_p(text_span(sin_letters[[x]]))),
     width = "1cm", height = "1cm",
     x = paste0(x / 2, "cm"),
     y = paste0(10 + 5 * sin(x / 10), "cm")
@@ -214,4 +217,4 @@ deck |>
   write_slides(slides) |>
   write_manifest() |>
   save_pres(filename)
-```
+``

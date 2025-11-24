@@ -33,6 +33,16 @@ new_graphic_style(
 A new graphic style item.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Create a new graphics style with sensible defaults.
+}
+\details{
+To use this style you need to do two things. First, make sure that all
+styles are put into a list and saved as part of your final project pipeline
+with the function \code{write_styles()}.
+
+Second, ensure that you use each style's name as defined in its \code{name} attribute
+when you created it. This is similar to CSS, where a style is defined and named
+and then referred back to at the point of use.
+
+Graphics styles can be used in new_custom_shape() function calls.
 }

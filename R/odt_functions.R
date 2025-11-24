@@ -4,13 +4,18 @@
 
 #' Create a `draw:frame` list object.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' This is used  internally by other functions.
 #'
-#' @param  width Character. Width in cm. e.g. "10cm"
-#' @param  height Character. Height in cm. e.g. "10cm"
-#' @param  x Character. Leftmost position in cm. e.g. "10cm"
-#' @param  y Character. Topmost position in cm. e.g. "10cm"
+#' This is the main function for adding text to your slides. Text boxes are
+#' the highest-level text objects, and they set the geometry for the text:
+#' where it will go, how large the shape will be, and so on.
+#'
+#' Text inside the boxes is provided as a list of text_p() (paragraph) or
+#' new_list() (list) objects.
+#' @param width Character. Width in cm. e.g. "10cm"
+#' @param height Character. Height in cm. e.g. "10cm"
+#' @param x Character. Leftmost position in cm. e.g. "10cm"
+#' @param y Character. Topmost position in cm. e.g. "10cm"
 #' @param draw_layer Character. Default "layout".
 #' @param draw_style_name Character. The draw style to apply. Default "gr1".
 #' @param draw_text_style_name Character. The text style to apply. Default "P1".
@@ -37,16 +42,20 @@ draw_frame <- function(
 }
 
 
-#' Create a textbox list including its wrapping draw_frame
+#' Create a text box list including its wrapping draw_frame
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' This is the main function for adding text to your slides. Text boxes are
+#' the highest-level text objects, and they set the geometry for the text:
+#' where it will go, how large the shape will be, and so on.
 #'
-#' @param text The text to display. Linebreaks will be parsed into separate paragraphs.
-#' @param   width Character. Width in cm. e.g. "10cm"
-#' @param  height Character. Height in cm. e.g. "10cm"
-#' @param  x Character. Leftmost position in cm. e.g. "10cm"
-#' @param  y Character. Topmost position in cm. e.g. "10cm"
+#' Text inside the boxes is provided as a list of text_p() (paragraph) or
+#' new_list() (list) objects.
+#'
+#' @param text List. The text to display as a series of text_p() or new_list() objects.
+#' @param width Character. Width in cm. e.g. "10cm"
+#' @param height Character. Height in cm. e.g. "10cm"
+#' @param x Character. Leftmost position in cm. e.g. "10cm"
+#' @param y Character. Topmost position in cm. e.g. "10cm"
 #' @param draw_layer Character. Default "layout".
 #' @param draw_style_name Character. The draw style to apply. Default "gr1".
 #' @param draw_text_style_name Character. The text style to apply. Default "P1".
@@ -80,7 +89,7 @@ text_box3 <- function(text, draw_text_style_name) {
   list(
     type = "draw:text-box",
     attributes = c(),
-    children = text # text_p(text, draw_text_style_name)
+    children = text
   )
 } # end function text_box2
 
@@ -121,9 +130,6 @@ text_box2 <- function(text, draw_text_style_name) {
 text_p <- function(..., contents_list = NA, text_style_name = NA) {
   # FOR NOW, say text must be a list. FIXME!
   # FOR NOW, say text must be a list OF SPANS. FIXME!
-  # text |>
-  #   maybe_split_text_lines() |>
-  #   lapply(\(line) do_text_p(text = line, text_style_name = text_style_name))
   # text is either a list of objects in contents_list, or else objects provided unlisted in ...
   text <- if (!all(is.na(contents_list))) {
     if (!is.list(contents_list)) {
@@ -170,7 +176,21 @@ do_text_p <- function(text, text_style_name) {
   the_p
 } # end function do_text_p()
 
-text_span <- function(text, style_name = NA, style_classes = NA) {
+
+
+#' Create a text span in list format
+#'
+#' Spans are the smallest unit of text. They can be individually styled with a new_text_style()
+#' or new_text_style_minimal() style object. They must live inside of text_p() objects. They do
+#' not create linebreaks or whitespace if they are next to each other.
+#'
+#' Spans can contain either raw character text or field objects, e.g. from field_page_num().
+#'
+#' @param text Character or field list object.
+#' @param style_name Character. Optional. Name of new_text_style() or new_text_style_minimal() object.
+#' @returns A text_span list object.
+#' @export
+text_span <- function(text, style_name = NA) {
   # need it to handle plain text, but also maybe object children like fields
   the_children <- if (is.character(text)) {
     text
@@ -187,10 +207,6 @@ text_span <- function(text, style_name = NA, style_classes = NA) {
     the_span$attributes <- c(`text:style-name` = style_name)
   }
 
-  if (!is.na(style_classes)) {
-    the_span$attributes <- c(`text:class-names` = style_classes)
-  }
-
   the_span
 }
 # if text is a string, split it at any linebreaks
@@ -205,8 +221,11 @@ maybe_split_text_lines <- function(text) {
 
 #' Create a slide item in list format
 #'
+#' Each slide is a new page in your presentation. Slides are defined as lists. Objects are added
+#' to slides with the add_to_slide() function.
+#'
 #' @param name Character. Slide name. Will go in e.g. pdf index. Important for accessibility.
-#' @returns Description of what the function returns.
+#' @returns A slide object in list format.
 #' @export
 new_slide <- function(name = "slide") {
   list(
@@ -387,12 +406,15 @@ new_pres <- function() {
 
 #' Save presentation as compressed ODP file in the current working directory and return the input document.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' This function receives a final deck object, performs disk operations as a side effect to create
+#' an output file, and then returns the original deck object invisibly.
+#'
+#' This is the *final step* and should be done after calling write_fonts(), write_styles(), write_manifest(),
+#' and write_slides(). They can be conveniently piped together, with `save_pres()` as the final step.
 #'
 #' @param doc The deck object to save.
 #' @param filename The filename in the current working folder to save the output.
-#' @returns Description of what the function returns.
+#' @returns The input deck object, invisibly.
 #' @export
 save_pres <- function(doc, filename) {
   # Save the context.xml file to disk
@@ -417,11 +439,10 @@ save_pres <- function(doc, filename) {
 
 #' Write styles in deck object. Styles must be list of list style items
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Update the deck object with user-defined styles.
 #'
 #' @param doc A deck object.
-#' @param styles A list of styles created new_paragraph_style() or
+#' @param styles A list of styles created by a style function, e.g. new_paragraph_style() or
 #'               odp::new_graphics_style().
 #' @returns An updated deck object with the styles added to it.
 #' @export
@@ -436,8 +457,8 @@ write_styles <- function(doc, styles) {
 
 #' Write slides in deck object. Slides must be list of list style items
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Update the deck object to write user-defined slides. This should only be
+#' run once in a final pipeline that ends with `save_pres()`.
 #'
 #' @param doc A deck object.
 #' @param slides A list of slides.
@@ -456,8 +477,10 @@ write_slides <- function(doc, slides) {
 
 #' Write fonts in deck object. Fonts must be list of list font items
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Update deck object to write user-defined fonts. Does not include fonts in
+#' the file; users must have fonts installed for this to work properly.
+#'
+#' Should be run once in a final pipeline terminating in `save_pres()`.
 #'
 #' @param doc A deck object.
 #' @param fonts A list of font declarations from new_font().
@@ -478,8 +501,17 @@ write_fonts <- function(doc, fonts) {
 
 #' Create new paragraph style.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Create a new paragraph style with sensible defaults.
+#'
+#' To use this style you need to do two things. First, make sure that all
+#' styles are put into a list and saved as part of your final project pipeline
+#' with the function `write_styles()`.
+#'
+#' Second, ensure that you use each style's name as defined in its `name` attribute
+#' when you created it. This is similar to CSS, where a style is defined and named
+#' and then referred back to at the point of use.
+#'
+#' Paragraph styles can be used in text_p() function calls.
 #'
 #' @param  name The style's name. This is used in text_box() to apply the style.
 #' @param font_weight Character. c("regular", "bold").
@@ -533,11 +565,7 @@ new_paragraph_style <- function(
         `attributes` = c(
           `fo:text-align` = text_align
         )
-      ) # ,
-      # list(
-      #   `type` = "style:text-properties",
-      #   `attributes` = c()
-      # )
+      )
     )
   )
 
@@ -662,8 +690,8 @@ new_font <- function(
 #
 #' Add item to slide.  slide and item must both be list items
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Update a slide list item to add a new item to it. In practice this will
+#' likely be text_box() or new_custom_shape() objects.
 #'
 #' @param slide A slide to add the item to.
 #' @param item An item to add to the slide. E.g. output of text_box(), new_custom_shape().
@@ -678,8 +706,8 @@ add_to_slide <- function(slide, item) {
 
 #' Create new custom shape.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Create a new shape object in list item format. Styles must be defined with
+#' new_graphic_style().
 #'
 #' @param type  Character. c("rectangle", "ellipse")
 #' @param width Character. Width in cm. e.g. "10cm"
@@ -873,8 +901,17 @@ draw_enhanced_geometry <- function(type = c("ellipse", "rectangle", "round-recta
 
 #' Define a new graphics style.
 #'
-#' Description of what the function does.
-#' how duplication is measured.
+#' Create a new graphics style with sensible defaults.
+#'
+#' To use this style you need to do two things. First, make sure that all
+#' styles are put into a list and saved as part of your final project pipeline
+#' with the function `write_styles()`.
+#'
+#' Second, ensure that you use each style's name as defined in its `name` attribute
+#' when you created it. This is similar to CSS, where a style is defined and named
+#' and then referred back to at the point of use.
+#'
+#' Graphics styles can be used in new_custom_shape() function calls.
 #'
 #' @param name Character. Name of the style, used later to apply it.
 #' @param stroke_color Character. Stroke colour in hex format. Default "#000000".
@@ -1034,29 +1071,13 @@ new_list <- function(..., contents_list = NA, list_style_name = "L1", text_style
     attributes = c(
       `text:style-name` = list_style_name
     ),
-    # `children` = list_contents
     `children` = lapply(X = contents, FUN = \(x) handle_list_contents(x, text_style_name))
   )
-
-  # if (!is.na(text_style_name)) {
-  #   thelist$attributes <- c(`text:style-name` = text_style_name)
-  # }
 
   thelist
 } # end funciton new_list()
 
 handle_list_contents <- function(list_contents, text_style_name) {
-  # contents <- if (is.character(list_contents) || is.numeric(list_contents)) {
-  #   # handle base list item
-  #   text_span(list_contents, text_style_name) # [[1]] # fixme
-  # } else if (is.list(list_contents)) {
-  #   # handle sub-list
-  #   new_list(list_contents, text_style_name)
-  # } else {
-  #   # something wrong
-  #   stop("List should contain text/numbers (list items) or lists (sub-lists). This one contained a ", class(list_contents)) # nolint
-  # }
-
   child <- list(
     `type` = "text:list-item",
     children = list(list_contents)

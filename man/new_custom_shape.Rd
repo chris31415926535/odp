@@ -42,6 +42,6 @@ new_custom_shape(
 A custom shape list object.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Create a new shape object in list item format. Styles must be defined with
+new_graphic_style().
 }

@@ -15,6 +15,9 @@ write_fonts(doc, fonts)
 The deck object with the fonts applied.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Update deck object to write user-defined fonts. Does not include fonts in
+the file; users must have fonts installed for this to work properly.
+}
+\details{
+Should be run once in a final pipeline terminating in \code{save_pres()}.
 }

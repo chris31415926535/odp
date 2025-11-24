@@ -15,6 +15,6 @@ add_to_slide(slide, item)
 The input slide with the new item added to it.
 }
 \description{
-Description of what the function does.
-how duplication is measured.
+Update a slide list item to add a new item to it. In practice this will
+likely be text_box() or new_custom_shape() objects.
 }

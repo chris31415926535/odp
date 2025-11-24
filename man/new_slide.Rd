@@ -10,8 +10,9 @@ new_slide(name = "slide")
 \item{name}{Character. Slide name. Will go in e.g. pdf index. Important for accessibility.}
 }
 \value{
-Description of what the function returns.
+A slide object in list format.
 }
 \description{
-Create a slide item in list format
+Each slide is a new page in your presentation. Slides are defined as lists. Objects are added
+to slides with the add_to_slide() function.
 }
