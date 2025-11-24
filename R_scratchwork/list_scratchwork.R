@@ -1,13 +1,6 @@
 # scratchwork for unordered (maybe ordered?) lists
 devtools::load_all()
 
-# text_style_name <- "L1"
-# text_span
-
-# text_span("hello")
-# text_box("sadf", width = "1cm", height = "1cm", x = "1cm", y = "1cm")
-
-
 deck <- odp::new_pres()
 
 style_center <- new_paragraph_style("center", text_align = "center")
@@ -15,32 +8,9 @@ style_t_bold <- new_text_style_minimal(name = "bold", font_weight = "bold")
 style_t_italic <- new_text_style_minimal(name = "italic", font_style = "italic")
 style_18pt <- new_text_style_minimal(name = "18pt", font_size = "18pt")
 style_8pt <- new_paragraph_style(name = "8pt", font_size = "8pt")
+
 styles <- list(style_center, style_t_bold, style_t_italic, style_18pt, style_8pt)
-styles[[3]]
-# test_text_list <- text_box(
-#   text = list(
-#     "Item number 1",
-#     "Item #2. These should be small and bold!"
-#   ),
-#   width = "10cm",
-#   height = "3cm",
-#   x = "1cm",
-#   y = "1cm",
-#   draw_text_style_name = "style_pg_bold"
-# )
-# test_text_normal <- text_box(
-#   text = "normal text",
-#   width = "10cm",
-#   height = "10cm",
-#   x = "1cm",
-#   y = "5cm",
-#   draw_text_style_name = "style_pg_bold"
-# )
 
-
-
-# test_text_list |>
-# list_item_to_xml()
 list_of_spans <- list(
   text_span("sorry ", style_name = "bold"),
   text_span("dave", style_name = "italic"),

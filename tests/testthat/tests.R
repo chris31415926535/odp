@@ -145,3 +145,10 @@ testthat::test_that("new_list()", {
     list_item_to_xml(test_list)
   })
 })
+
+
+testthat::test_that("field_page_num()", {
+  testthat::expect_no_error({
+    list_item_to_xml(field_page_num())
+  })
+})

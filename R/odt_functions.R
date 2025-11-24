@@ -171,9 +171,16 @@ do_text_p <- function(text, text_style_name) {
 } # end function do_text_p()
 
 text_span <- function(text, style_name = NA, style_classes = NA) {
+  # need it to handle plain text, but also maybe object children like fields
+  the_children <- if (is.character(text)) {
+    text
+  } else {
+    list(text)
+  }
+
   the_span <- list(
     type = "text:span",
-    children = text
+    children = the_children
   )
 
   if (!is.na(style_name)) {
@@ -922,12 +929,12 @@ new_graphic_style <- function(
 #' @returns A field showing the current page number.
 #' @export
 field_page_num <- function() {
+  # list(
   list(
-    list(
-      `type` = "text:page-number",
-      children = c("&lt;number&gt;")
-    )
+    `type` = "text:page-number",
+    children = "&lt;number&gt;"
   )
+  # )
 } # end function field_page_num()
 
 
