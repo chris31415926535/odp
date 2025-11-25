@@ -413,9 +413,13 @@ save_pres <- function(doc, filename) {
   content_xml_filename <- paste0(Sys.getenv("temp_dir"), "/content.xml")
   xml2::write_xml(x = doc, file = content_xml_filename, options = "")
 
-  # compress it
+  # compress it. zip seems to need you to be in the same directory!
+  # spent too long trying to do it wihtout changing wd...
   to_path <- paste0(getwd(), "/", filename)
-  utils::zip(zipfile = to_path, files = Sys.getenv("temp_dir"))
+  old_working_dir <- getwd()
+  setwd(Sys.getenv("temp_dir"))
+  utils::zip(zipfile = to_path, files = list.files(), flags = "-r9XFS")
+  setwd(old_working_dir)
 
   # return input invisibly in case there's more piping to do
   invisible(doc)

@@ -89,6 +89,10 @@ rounded_rect <- odp::new_custom_shape(
   rect_radius = 8500, draw_style_name = "style_gr_blue"
 )
 
+img_circle <- new_image(
+  img_filepath =   paste0(system.file("extdata", package = "odp"), "/image1.svg"),
+  width = "1cm", height = "1cm", x = "15cm", y = "10cm", alt_text = "an svg file")
+
 # Now we add all of our items to our current list.
 slide1 <- slide1 |>
   add_to_slide(text_box_1) |>
@@ -96,6 +100,7 @@ slide1 <- slide1 |>
   add_to_slide(pink_ellipse) |>
   add_to_slide(blue_rectangle) |>
   add_to_slide(rounded_rect) |>
+  add_to_slide(img_circle) |>
    add_to_slide(page_num)
 
 # Then we append the current slide to the list of slides.
