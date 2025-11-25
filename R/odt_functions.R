@@ -389,17 +389,9 @@ empty_xml_text <- '<office:document-content xmlns:anim="urn:oasis:names:tc:opend
 new_pres <- function() {
   Sys.setenv("temp_dir" = sprintf("%s/pres", tempdir()))
   unlink(x = Sys.getenv("temp_dir"), recursive = TRUE, force = TRUE) |> suppressWarnings()
-  dir.create(Sys.getenv("temp_dir"), showWarnings = FALSE)
-  file.copy(
-    from = paste0(system.file("extdata", package = "odp"), "/empty_presentation.odp"),
-    to = Sys.getenv("temp_dir"),
-    overwrite = TRUE
-  )
-
-  unzip_command <- sprintf("cd %s; unzip -o empty_presentation.odp", Sys.getenv("temp_dir"))
-  system(unzip_command, ignore.stdout = TRUE)
-  file.remove(paste0(Sys.getenv("temp_dir"), "/empty_presentation.odp"))
-
+  from <- paste0(system.file("extdata", package = "odp"), "/empty_presentation.odp")
+  to <- Sys.getenv("temp_dir")
+  utils::unzip(zipfile = from, exdir = to)
   xml2::read_xml(empty_xml_text)
 }
 
@@ -422,13 +414,8 @@ save_pres <- function(doc, filename) {
   xml2::write_xml(x = doc, file = content_xml_filename, options = "")
 
   # compress it
-  zip_cmd <- sprintf("cd %s; zip -r output.odp * -x *.odt -x *.odp", Sys.getenv("temp_dir"))
-  system(zip_cmd, ignore.stdout = TRUE)
-
-  # copy to current working folder
-  from_path <- paste0(Sys.getenv("temp_dir"), "/output.odp")
   to_path <- paste0(getwd(), "/", filename)
-  file.copy(from = from_path, to = to_path, overwrite = TRUE)
+  utils::zip(zipfile = to_path, files = Sys.getenv("temp_dir"))
 
   # return input invisibly in case there's more piping to do
   invisible(doc)
