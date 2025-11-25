@@ -1,3 +1,12 @@
+testthat::test_that("new_slide()", {
+  actual <- new_slide(name = "TEST!")
+  expected <- list()
+  expected$type <- "draw:page"
+  expected$attributes <- c(`draw:name` = "TEST!")
+  expected$children <- list()
+  testthat::expect_equal(actual, expected)
+})
+
 testthat::test_that("text_span()", {
   # unstyled span works
   expected_t1 <- list()
@@ -151,4 +160,31 @@ testthat::test_that("field_page_num()", {
   testthat::expect_no_error({
     list_item_to_xml(field_page_num())
   })
+})
+
+testthat::test_that("list_item_to_xml()", {
+  # fails if input is not a list
+  testthat::expect_error(list_item_to_xml(1:10))
+
+  # fails if list does not have $type property
+  testthat::expect_error(list_item_to_xml(list(typo = "note-type")))
+
+  # succeeds if list does have $type property
+  testthat::expect_no_error(list_item_to_xml(list(type = "note-type")))
+})
+
+testthat::test_that("maybe_add_to_vector()", {
+  v0 <- c()
+  v1 <- v0 |>
+    maybe_add_to_vector("name", "value")
+
+  testthat::expect_equal(v1, c("name" = "value"))
+
+  v2 <- v1 |>
+    maybe_add_to_vector("name2", "value2")
+  testthat::expect_equal(v2, c("name" = "value", "name2" = "value2"))
+
+  v3 <- v2 |>
+    maybe_add_to_vector("name3", NA)
+  testthat::expect_equal(v3, c("name" = "value", "name2" = "value2"))
 })
