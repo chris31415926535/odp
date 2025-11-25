@@ -93,7 +93,10 @@ testthat::test_that("new_custom_shape()", {
       y = "1cm",
       draw_style_name = "gr1",
       text_style_name = "P1",
-      text = "some text",
+      text = list(
+        text_p(text_span("some text in a span in a p")),
+        text_p(text_span("some more text in a span in a p"))
+      ),
       alt_text = "some alt text",
       rect_radius = 0
     )
@@ -105,7 +108,7 @@ testthat::test_that("new_custom_shape()", {
       y = "1cm",
       draw_style_name = "gr1",
       text_style_name = "P1",
-      text = "some text",
+      text = text_p(text_span("some text in a span in a p")),
       alt_text = "some alt text",
       rect_radius = 0
     )

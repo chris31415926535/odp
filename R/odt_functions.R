@@ -730,9 +730,15 @@ new_custom_shape <- function(
   # if text is character, make a text_p(text_span()) for it. otherwise pass through
   text_child <- if (all(is.character(text))) {
     list(text_p(text_span(text, style_name = text_style_name), text_style_name = text_style_name))
-  } else if (is.list(text_child)) {
-    text_child
+  } else if (is.list(text)) {
+    # received a list: if it's one item with proprty `type` then wrap it in a list, otherwise pass the list unchanged
+    if (!is.null(text$type)) {
+      list(text)
+    } else {
+      text
+    }
   }
+
   list(
     `type` = "draw:custom-shape",
     attributes = c(
