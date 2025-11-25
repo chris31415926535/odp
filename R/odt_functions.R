@@ -1039,14 +1039,23 @@ create_manifest_img_xml <- function(filename) {
 #' @param text_style_name Character. Name of new_paragraph_style() output style.
 #' @export
 new_list <- function(..., contents_list = NA, list_style_name = "L1", text_style_name = NA) {
-  # TODO! Right now it just passes list contents through silently. list children need to be text_ps at least FIXME
+  contents_list_supplied <- !all(is.na(contents_list))
+  contents_list_is_list <- is.list(contents_list)
+  contents_list_contains_lists <- lapply(X = contents_list, FUN = is.list) |>
+    unlist() |>
+    all()
 
-  contents <- if (!all(is.na(contents_list))) {
-    if (!is.list(contents_list)) {
+  contents <- if (contents_list_supplied) {
+    # contents_list must be a list
+    if (!contents_list_is_list || !contents_list_contains_lists) {
       stop("contents_list argument must contain a list() of text_p() objects.)")
     }
+
+    # list of list objects supplied, pass it on
     contents_list
   } else {
+    # otherwise wrap supplied objects in a list
+    # TODO would be good to validate this as well
     list(...)
   }
 

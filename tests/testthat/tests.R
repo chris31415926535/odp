@@ -134,6 +134,15 @@ testthat::test_that("text_box()", {
 })
 
 testthat::test_that("new_list()", {
+  # test failure conditions
+  # contents_list must be a list
+  testthat::expect_error(new_list(contents_list = c("abc","123")))
+
+  # not a list off text_p objects
+  testthat::expect_error({
+    new_list(contents_list = list("abra","cadabra"))
+  })
+
   # minimal condition: we can make a list and convert it to xml without error
   testthat::expect_no_error({
     # passing list item as ... argument
@@ -162,6 +171,7 @@ testthat::test_that("new_list()", {
 testthat::test_that("field_page_num()", {
   testthat::expect_no_error({
     list_item_to_xml(field_page_num())
+    list_item_to_xml(text_p(text_span(field_page_num())))
   })
 })
 
