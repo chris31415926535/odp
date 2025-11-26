@@ -136,11 +136,11 @@ testthat::test_that("text_box()", {
 testthat::test_that("new_list()", {
   # test failure conditions
   # contents_list must be a list
-  testthat::expect_error(new_list(contents_list = c("abc","123")))
+  testthat::expect_error(new_list(contents_list = c("abc", "123")))
 
   # not a list off text_p objects
   testthat::expect_error({
-    new_list(contents_list = list("abra","cadabra"))
+    new_list(contents_list = list("abra", "cadabra"))
   })
 
   # minimal condition: we can make a list and convert it to xml without error
@@ -200,4 +200,53 @@ testthat::test_that("maybe_add_to_vector()", {
   v3 <- v2 |>
     maybe_add_to_vector("name3", NA)
   testthat::expect_equal(v3, c("name" = "value", "name2" = "value2"))
+})
+
+testthat::test_that("new_graphic_style()", {
+  # minimal condition: can create a style and turn it into XML without error
+  testthat::expect_no_error({
+    style <- new_graphic_style(name = "test")
+    list_item_to_xml(style)
+  })
+})
+
+testthat::test_that("new_paragraph_style()", {
+  # minimal condition: can create a style and turn it into XML without error
+  testthat::expect_no_error({
+    style <- new_paragraph_style(name = "test")
+    list_item_to_xml(style)
+  })
+})
+
+testthat::test_that("new_text_style()", {
+  # minimal condition: can create a style and turn it into XML without error
+  testthat::expect_no_error({
+    style <- new_text_style(name = "test")
+    list_item_to_xml(style)
+  })
+})
+
+testthat::test_that("new_text_style_minimal()", {
+  # minimal condition: can create a style and turn it into XML without error
+  testthat::expect_no_error({
+    style_something <- new_text_style_minimal(name = "test", font_weight = "bold")
+    style_empty <- new_text_style_minimal(name = "test")
+    list_item_to_xml(style_something)
+    list_item_to_xml(style_empty)
+  })
+
+  # no style means no attributes
+  style_empty <- new_text_style_minimal(name = "test")
+  testthat::expect_null(style_empty$children[[1]]$attributes)
+
+  # bold style means bold attribute and only bold attribute
+  style_bold <- new_text_style_minimal(name = "test", font_weight = "bold")
+  testthat::expect_equal(
+    style_bold$children[[1]]$attributes["fo:font-weight"],
+    c("fo:font-weight" = "bold")
+  )
+  testthat::expect_equal(
+    length(style_bold$children[[1]]$attributes["fo:font-weight"]),
+    1
+  )
 })

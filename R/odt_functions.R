@@ -91,23 +91,8 @@ text_box3 <- function(text, draw_text_style_name) {
     attributes = c(),
     children = text
   )
-} # end function text_box2
+} # end function text_box3
 
-text_box2 <- function(text, draw_text_style_name) {
-  # each line is wrapped in its own p for linebreaks
-  if (is.character(text)) {
-    list(
-      type = "draw:text-box",
-      attributes = c(),
-      children = text_p(text, draw_text_style_name)
-    )
-  } else if (is.list(text)) {
-    list(
-      type = "draw:text-box",
-      children = list(new_list(text, draw_text_style_name))
-    )
-  }
-} # end function text_box2
 
 #' Create a text:p item in list format
 #'
@@ -619,7 +604,9 @@ new_text_style_minimal <- function(
     color = NA,
     opacity = NA,
     font_name = NA,
-    text_underline_style = NA) {
+    text_underline_style = NA,
+    text_underline_width  = NA,
+    text_underline_color = NA) {
   attributes <- c() |>
     maybe_add_to_vector("fo:font-weight", font_weight) |>
     maybe_add_to_vector("fo:font-style", font_style) |>
@@ -628,8 +615,9 @@ new_text_style_minimal <- function(
     maybe_add_to_vector("loext:opacity", opacity) |>
     maybe_add_to_vector("style:font-name", font_name) |>
     maybe_add_to_vector("style:text-underline-style", text_underline_style) |>
-    maybe_add_to_vector("style:text-underline-width", "auto") |>
-    maybe_add_to_vector("style:text-underline-color", "font-color")
+    maybe_add_to_vector("style:text-underline-width", text_underline_width) |>
+    maybe_add_to_vector("style:text-underline-color", text_underline_color)
+    
 
   style_list <- list(
     `type` = "style:style",

@@ -5,3 +5,4 @@
 temp
 R_scratchwork
 ^\.github$
+^codecov\.yml$
