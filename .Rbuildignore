@@ -4,3 +4,4 @@
 ^\.lintr$
 temp
 R_scratchwork
+^\.github$

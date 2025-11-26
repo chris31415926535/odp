@@ -1,6 +1,7 @@
 # odp
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/chris31415926535/odp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/chris31415926535/odp/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of odp is to create LibreOffice-compatible Open Document Presentation files with no external dependencies.
@@ -20,11 +21,11 @@ The R package [_officer_](https://ardata-fr.github.io/officeverse/index.html) is
 
 _This package is in its very early stages and all of this may change._
 
-I want this package to be simple to use and easy to reason about. This is harder than it seems, because an .odt file is surprisingly complex: it is actually a zip file containing many .xml files and other things. And XML is awful to work with in R, because it is a complex extremely un-R-like data structure with lots of modify-in-place side effects and pointers.
+I want this package to be simple to use and easy to reason about. This is harder than it seems, because an .odp file is surprisingly complex: it is actually a zip file containing many .xml files and other things. And XML is awful to work with in R, because it is a complex extremely un-R-like data structure with lots of modify-in-place side effects and pointers.
 
-So in _odt_ we take a different tack. We define our presentation primarily using in-memory R objects (lists, but they should eventually be typed classes), and then only convert them to XML at the last possible moment.
+So in _odp_ we take a different tack. We define our presentation primarily using in-memory R objects (lists, but they should eventually be typed classes), and then only convert them to XML at the last possible moment.
 
-At present, however, _odt_ also uses some side-effects. When a new deck is initialized, a temporary folder is created and a blank presentation (from LibreOffice) is unzipped to provide an empty scaffold. This is mostly unused, except that any images added to the presentation are copied into the "Pictures" folder within this template. Then, when the user is ready to save their presentation, they write styles, fonts, and slides to disk and save a local copy of the presentation by compressing the temporary folder.
+At present, however, _odp_ also uses some side-effects. When a new deck is initialized, a temporary folder is created and a blank presentation (from LibreOffice) is unzipped to provide an empty scaffold. This is mostly unused, except that any images added to the presentation are copied into the "Pictures" folder within this template. Then, when the user is ready to save their presentation, they write styles, fonts, and slides to disk and save a local copy of the presentation by compressing the temporary folder.
 
 This has a few implications:
 
@@ -37,20 +38,25 @@ The process is intended to be:
 - Define any fonts;
 - Create a set of slides;
 - Write styles, fonts, and slides to disk in the temporary folder;
-- Create an odt file by compressing the temporary folder.
+- Create an odp file by compressing the temporary folder.
 
 ## Known issues
 
-- List formatting is wonky (i.e. doesn't work)
+- None as of writing.
+
+## Unknown issues
+
+- _TBC_
 
 ## TODO
 
+- Links
+- Other shapes (minimally, lines)
 - ~~Alt text for images~~
 - 'Decorative' tag for images?
 - ~~Basic Shapes~~
 - ~~Page numbers~~
 - ~~Basic text and shape styling~~
-- Links
 - ~~Fix manifest.xml for images~~
 - ~~Refactor in a clever way to do all magic side-effects once at write time?~~ *Mostly!*
 
@@ -94,8 +100,6 @@ style_pg_center <- new_paragraph_style(
 style_pg_pagenum <- new_paragraph_style(
   name = "style_pg_pagenum", font_size = "8pt"
 )
-
-
 
 style_gr_pink <- new_graphic_style(
   name = "style_gr_pink", fill_type = "solid",
