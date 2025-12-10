@@ -37,7 +37,7 @@ really_good_one <- list(
     text_style_name = "8pt",
     text_span("hello"),
     text_span(" my friends!", style_name = "bold"),
-    text_span(" Check this out:", style_classes = " bold italic ")
+    text_span(" Check this out:", style_name = " bold italic ")
   ),
   new_list(
       text_p(text_span("One"), text_style_name = "8pt"),

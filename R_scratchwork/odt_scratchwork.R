@@ -139,6 +139,13 @@ for (x in seq(from = 1, to = 50, by = 1)) {
 # add this slide to the slides.
 slides <- append(slides, list(slide_sin))
 
+# set up some metadata
+metadata <- create_metadata(
+  title = "A great demonstration deck",
+  description = "A slide deck that makes you want to get up and dance",
+  keyword = "fun, office, party time, quarterly financials"
+)
+
 # set up a timestamped filename
 filename <- paste0("test-", Sys.time(), ".odp") |>
   gsub(pattern = ":", replacement = "-")
@@ -152,6 +159,7 @@ deck |>
   write_styles(styles) |>
   write_slides(slides) |>
   write_manifest() |>
+  write_metadata(metadata) |>
   save_pres(filename)
 
 

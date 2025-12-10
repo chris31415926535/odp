@@ -548,6 +548,12 @@ new_paragraph_style <- function(
   style_list
 } # end function new_paragraph_style
 
+#' Define new text style.
+#'
+#' Does overwrite other style elements.
+#'
+#' @returns A new text style.
+#' @export
 new_text_style <- function(
     name,
     font_weight = c("regular", "bold"),
@@ -596,6 +602,12 @@ maybe_add_to_vector <- function(vector, name, value_or_na) {
 }
 
 
+#' Define new minimal text style.
+#'
+#' Does not overwrite other style elements.
+#'
+#' @returns A new minimal text style.
+#' @export
 new_text_style_minimal <- function(
     name,
     font_weight = NA,
@@ -605,7 +617,7 @@ new_text_style_minimal <- function(
     opacity = NA,
     font_name = NA,
     text_underline_style = NA,
-    text_underline_width  = NA,
+    text_underline_width = NA,
     text_underline_color = NA) {
   attributes <- c() |>
     maybe_add_to_vector("fo:font-weight", font_weight) |>
@@ -617,7 +629,7 @@ new_text_style_minimal <- function(
     maybe_add_to_vector("style:text-underline-style", text_underline_style) |>
     maybe_add_to_vector("style:text-underline-width", text_underline_width) |>
     maybe_add_to_vector("style:text-underline-color", text_underline_color)
-    
+
 
   style_list <- list(
     `type` = "style:style",
@@ -1082,3 +1094,175 @@ handle_list_contents <- function(list_contents, text_style_name) {
 
   child
 } # end function handle_list_contents()
+
+
+
+
+# Function to create a list of metadata objects. Must be written with write_metadata().
+create_metadata <- function(title = NA,
+                            description = NA,
+                            contributor = NA,
+                            keyword = NA,
+                            coverage = NA,
+                            identifier = NA,
+                            publisher = NA,
+                            relation = NA,
+                            rights = NA,
+                            source = NA,
+                            type = NA,
+                            subject = NA) {
+  metadata <- list()
+
+  if (!is.na(title)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:title",
+        `children` = title
+      )
+    ))
+  }
+
+  if (!is.na(description)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:description",
+        `children` = description
+      )
+    ))
+  }
+
+  if (!is.na(contributor)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:contributor",
+        `children` = contributor
+      )
+    ))
+  }
+
+  if (!is.na(keyword)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "meta:keyword",
+        `children` = keyword
+      )
+    ))
+  }
+
+  if (!is.na(coverage)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:coverage",
+        `children` = coverage
+      )
+    ))
+  }
+
+  if (!is.na(identifier)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:identifier",
+        `children` = identifier
+      )
+    ))
+  }
+
+  if (!is.na(publisher)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:publisher",
+        `children` = publisher
+      )
+    ))
+  }
+
+  if (!is.na(relation)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:relation",
+        `children` = relation
+      )
+    ))
+  }
+
+  if (!is.na(rights)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:rights",
+        `children` = rights
+      )
+    ))
+  }
+
+  if (!is.na(source)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:source",
+        `children` = source
+      )
+    ))
+  }
+
+  if (!is.na(type)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:type",
+        `children` = type
+      )
+    ))
+  }
+
+  if (!is.na(subject)) {
+    metadata <- append(metadata, list(
+      list(
+        `type` = "dc:subject",
+        `children` = subject
+      )
+    ))
+  }
+
+  date_time <- format(Sys.time(), "%Y-%m-%dT%H:%M:%OS6")
+
+  metadata <- append(metadata, list(
+    list(
+      `type` = "dc:date",
+      `children` = date_time
+    )
+  ))
+  metadata <- append(metadata, list(
+    list(
+      `type` = "meta:creation-date",
+      `children` = date_time
+    )
+  ))
+  metadata <- append(metadata, list(
+    list(
+      `type` = "meta:print-date",
+      `children` = date_time
+    )
+  ))
+
+  metadata
+  list(
+    type = "office:meta",
+    children = metadata
+  )
+}
+
+
+blank_metadata <- function() {
+  xml2::read_xml('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-meta xmlns:officeooo=\"http://openoffice.org/2009/office\" xmlns:anim=\"urn:oasis:names:tc:opendocument:xmlns:animation:1.0\" xmlns:smil=\"urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0\" xmlns:presentation=\"urn:oasis:names:tc:opendocument:xmlns:presentation:1.0\" xmlns:grddl=\"http://www.w3.org/2003/g/data-view#\" xmlns:meta=\"urn:oasis:names:tc:opendocument:xmlns:meta:1.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:ooo=\"http://openoffice.org/2004/office\" xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\" office:version=\"1.4\"/>') # nolint
+}
+
+write_metadata <- function(doc, metadata) {
+  temp_dir <- Sys.getenv("temp_dir")
+
+  metadata_xml <- blank_metadata() 
+
+  xml2::xml_add_child(metadata_xml, list_item_to_xml(metadata))
+
+  metadata_xml
+
+  xml2::write_xml(x = metadata_xml, file = paste0(temp_dir, "/meta.xml"))
+  doc
+}
