@@ -552,6 +552,15 @@ new_paragraph_style <- function(
 #'
 #' Does overwrite other style elements.
 #'
+#' @param name Character. Name of style that will be used to apply it.
+#' @param font_weight Cahracter.
+#' @param    font_weight          Character. Default  c("regular", "bold")
+#' @param    font_style           Character. Default  c("regular", "italic")
+#' @param    font_size            Character. Default  "12pt"
+#' @param    color                Character. Default  "#000000"
+#' @param    opacity              Character. Default  "100%"
+#' @param    font_name            Character. Default  "Liberation Sans"
+#' @param    text_underline_style Character. Default  c("none", "solid"))
 #' @returns A new text style.
 #' @export
 new_text_style <- function(
@@ -604,8 +613,19 @@ maybe_add_to_vector <- function(vector, name, value_or_na) {
 
 #' Define new minimal text style.
 #'
-#' Does not overwrite other style elements.
+#' Does not overwrite other style elements; has no defaults. For options,
+#' see new_text_style() documentation.
 #'
+#' @param    name Character. Name that will be used to apply the style.
+#' @param    font_weight Character. Default NA
+#' @param    font_style Character. Default NA
+#' @param    font_size Character. Default NA
+#' @param    color Character. Default NA
+#' @param    opacity Character. Default NA
+#' @param    font_name Character. Default NA
+#' @param    text_underline_style Character. Default NA
+#' @param    text_underline_width Character. Default NA
+#' @param    text_underline_color Character. Default NA
 #' @returns A new minimal text style.
 #' @export
 new_text_style_minimal <- function(
@@ -1098,7 +1118,23 @@ handle_list_contents <- function(list_contents, text_style_name) {
 
 
 
-# Function to create a list of metadata objects. Must be written with write_metadata().
+#' Create a metadata list object.
+#'
+#' Must be written to disk with write_metadata().
+#'
+#' @param title Character. Title of presentation.
+#' @param description Character.
+#' @param contributor Character.
+#' @param keyword Character.
+#' @param coverage Character.
+#' @param identifier Character.
+#' @param publisher Character.
+#' @param relation Character.
+#' @param rights Character.
+#' @param source Character.
+#' @param type Character.
+#' @param subject Character.
+#' @export
 create_metadata <- function(title = NA,
                             description = NA,
                             contributor = NA,
@@ -1254,10 +1290,15 @@ blank_metadata <- function() {
   xml2::read_xml('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<office:document-meta xmlns:officeooo=\"http://openoffice.org/2009/office\" xmlns:anim=\"urn:oasis:names:tc:opendocument:xmlns:animation:1.0\" xmlns:smil=\"urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0\" xmlns:presentation=\"urn:oasis:names:tc:opendocument:xmlns:presentation:1.0\" xmlns:grddl=\"http://www.w3.org/2003/g/data-view#\" xmlns:meta=\"urn:oasis:names:tc:opendocument:xmlns:meta:1.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:ooo=\"http://openoffice.org/2004/office\" xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\" office:version=\"1.4\"/>') # nolint
 }
 
+#' Write metadata (title, subject, etc.) to disk
+#'
+#' @param doc A deck object created with new_pres().
+#' @param metadata A metadata list object created with create_metadata().contents_list List. A list of text_p() or new_list() items prepared previously.
+#' @export
 write_metadata <- function(doc, metadata) {
   temp_dir <- Sys.getenv("temp_dir")
 
-  metadata_xml <- blank_metadata() 
+  metadata_xml <- blank_metadata()
 
   xml2::xml_add_child(metadata_xml, list_item_to_xml(metadata))
 

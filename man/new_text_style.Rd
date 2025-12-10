@@ -15,6 +15,23 @@ new_text_style(
   text_underline_style = c("none", "solid")
 )
 }
+\arguments{
+\item{name}{Character. Name of style that will be used to apply it.}
+
+\item{font_weight}{Character. Default  c("regular", "bold")}
+
+\item{font_style}{Character. Default  c("regular", "italic")}
+
+\item{font_size}{Character. Default  "12pt"}
+
+\item{color}{Character. Default  "#000000"}
+
+\item{opacity}{Character. Default  "100\%"}
+
+\item{font_name}{Character. Default  "Liberation Sans"}
+
+\item{text_underline_style}{Character. Default  c("none", "solid"))}
+}
 \value{
 A new text style.
 }

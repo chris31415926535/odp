@@ -17,9 +17,31 @@ new_text_style_minimal(
   text_underline_color = NA
 )
 }
+\arguments{
+\item{name}{Character. Name that will be used to apply the style.}
+
+\item{font_weight}{Character. Default NA}
+
+\item{font_style}{Character. Default NA}
+
+\item{font_size}{Character. Default NA}
+
+\item{color}{Character. Default NA}
+
+\item{opacity}{Character. Default NA}
+
+\item{font_name}{Character. Default NA}
+
+\item{text_underline_style}{Character. Default NA}
+
+\item{text_underline_width}{Character. Default NA}
+
+\item{text_underline_color}{Character. Default NA}
+}
 \value{
 A new minimal text style.
 }
 \description{
-Does not overwrite other style elements.
+Does not overwrite other style elements; has no defaults. For options,
+see new_text_style() documentation.
 }
